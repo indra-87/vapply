@@ -63,6 +63,27 @@ body{
 
 .wrap{max-width:1180px; margin:0 auto; padding:22px 20px 60px;}
 
+.toggle-bar{
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
+  background:#fff; border:1.5px solid var(--line); border-radius:14px;
+  padding:16px 18px; margin-bottom:18px;
+}
+.toggle-bar.open{border-color:#bfe3cc; background:#f3faf5;}
+.toggle-bar.closed{border-color:#f3c6c6; background:#fdf5f5;}
+.toggle-bar .info{display:flex; align-items:center; gap:12px;}
+.toggle-bar .dot{width:11px; height:11px; border-radius:50%; flex:none;}
+.toggle-bar.open .dot{background:#2f8b57;}
+.toggle-bar.closed .dot{background:var(--danger);}
+.toggle-bar .label b{display:block; font-size:14.5px; font-weight:800;}
+.toggle-bar .label span{font-size:12px; color:var(--muted);}
+.toggle-btn{
+  border:none; padding:11px 18px; border-radius:10px; font-weight:800; font-size:13.5px;
+  cursor:pointer; font-family:inherit; color:#fff;
+}
+.toggle-btn.to-close{background:var(--danger);}
+.toggle-btn.to-open{background:#2f8b57;}
+.toggle-btn:disabled{opacity:.6; cursor:default;}
+
 .stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin-bottom:20px;}
 .stat{
   background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px;
@@ -133,6 +154,17 @@ tbody tr:hover{background:#fafbfd;}
   </div>
 
   <div class="wrap">
+    <div class="toggle-bar" id="toggleBar">
+      <div class="info">
+        <span class="dot" id="toggleDot"></span>
+        <div class="label">
+          <b id="toggleLabel">상태 확인 중...</b>
+          <span id="toggleSub">신청 페이지에서 이 상태를 실시간으로 반영합니다.</span>
+        </div>
+      </div>
+      <button class="toggle-btn" id="toggleBtn" disabled>불러오는 중...</button>
+    </div>
+
     <div class="stats" id="statsRow"></div>
     <div class="stats" id="courseStatsRow" style="margin-top:-10px;"></div>
 
@@ -210,6 +242,7 @@ function doLogin(){
   $('loginScreen').style.display='none';
   $('dashScreen').style.display='block';
   loadData();
+  loadOpenState();
 }
 
 $('logoutBtn').addEventListener('click', ()=>{
@@ -217,6 +250,59 @@ $('logoutBtn').addEventListener('click', ()=>{
   $('pwInput').value = '';
   $('dashScreen').style.display='none';
   $('loginScreen').style.display='flex';
+});
+
+/* ---------- 신청 접수 개시/중지 ---------- */
+let isOpen = true;
+
+function renderToggleBar(){
+  const bar = $('toggleBar');
+  const dot = $('toggleDot');
+  const label = $('toggleLabel');
+  const sub = $('toggleSub');
+  const btn = $('toggleBtn');
+
+  bar.classList.toggle('open', isOpen);
+  bar.classList.toggle('closed', !isOpen);
+  label.textContent = isOpen ? '연수 신청 접수 중' : '연수 신청 접수 중지됨';
+  sub.textContent = isOpen
+    ? '신청 페이지에서 지금 신청서를 제출할 수 있습니다.'
+    : '신청 페이지에는 "지금은 연수 신청 기간이 아닙니다." 안내가 표시됩니다.';
+  btn.disabled = false;
+  btn.className = 'toggle-btn ' + (isOpen ? 'to-close' : 'to-open');
+  btn.textContent = isOpen ? '신청 접수 중지하기' : '신청 접수 다시 열기';
+}
+
+async function loadOpenState(){
+  const { data, error } = await sb.from('course_config').select('is_open').eq('id', 1).single();
+  if(error){
+    console.error(error);
+    $('toggleLabel').textContent = '상태를 불러오지 못했습니다';
+    $('toggleSub').textContent = '새로고침해 주세요.';
+    return;
+  }
+  isOpen = data.is_open !== false;
+  renderToggleBar();
+}
+
+$('toggleBtn').addEventListener('click', async ()=>{
+  const next = !isOpen;
+  const confirmMsg = next
+    ? '연수 신청 접수를 다시 여시겠습니까?'
+    : '연수 신청 접수를 중지하시겠습니까?\n신청 페이지에 "지금은 연수 신청 기간이 아닙니다." 안내가 표시됩니다.';
+  if(!confirm(confirmMsg)) return;
+
+  $('toggleBtn').disabled = true;
+  $('toggleBtn').textContent = '처리 중...';
+  const { error } = await sb.rpc('admin_set_application_open', { p_password: currentPassword, p_open: next });
+  if(error){
+    console.error(error);
+    alert('상태 변경에 실패했습니다.');
+    renderToggleBar();
+    return;
+  }
+  isOpen = next;
+  renderToggleBar();
 });
 
 /* ---------- 데이터 로드 ---------- */
