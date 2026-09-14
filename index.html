@@ -109,6 +109,11 @@ label{
 }
 label:first-of-type{margin-top:0;}
 .hint{font-size:12.5px; color:var(--muted); margin:-3px 0 8px;}
+.field-err{
+  font-size:12.5px; color:var(--danger); font-weight:600;
+  margin:6px 0 0; display:none;
+}
+input.invalid{border-color:var(--danger) !important; background:#fdf5f5 !important;}
 input[type=text], input[type=date], select{
   width:100%; padding:12px 13px; font-size:14.5px;
   border:1.5px solid var(--line); border-radius:11px;
@@ -239,11 +244,12 @@ select{appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns
     <h2>신청 정보 입력</h2>
     <form id="applyForm" novalidate>
       <label for="region">지역명</label>
-      <input type="text" id="region" name="region" placeholder="예: 순천" required>
+      <input type="text" id="region" name="region" placeholder="예: 여수" required>
 
       <label for="neis">NEIS 개인번호</label>
-      <div class="hint">영어+숫자 10자리</div>
-      <input type="text" id="neis" name="neis" placeholder="영어+숫자 10자리" required>
+      <div class="hint">영어 1자리 + 숫자 9자리 (총 10자리)</div>
+      <input type="text" id="neis" name="neis" placeholder="예: Q123456789" maxlength="10" required>
+      <div class="field-err" id="neisErr">영어 1자리 + 숫자 9자리 형식으로 입력해 주세요. (예: Q123456789)</div>
 
       <label for="applicantName">성명</label>
       <input type="text" id="applicantName" name="name" required>
@@ -268,7 +274,7 @@ select{appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns
       </select>
 
       <label for="school">소속학교명</label>
-      <input type="text" id="school" name="school" placeholder="정식 명칭 기재(예 : OO중학교)" required>
+      <input type="text" id="school" name="school" placeholder="정식 명칭 기재(예: OO 초등학교)" required>
 
       <label>공립/사립 구분</label>
       <div class="radio-row" id="schoolTypeRow">
@@ -320,7 +326,8 @@ select{appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns
     <h3>신청이 완료되었습니다</h3>
     <p>신청 내용을 확인 후 순차적으로 처리됩니다.<br>진행 상황은 [연수 신청 결과 확인하기]에서 확인하실 수 있습니다.</p>
     <div class="bank-note">💳 연수비 입금 계좌는 추후 문자/공지로 별도 안내드릴 예정입니다.</div>
-    <button class="btn btn-primary" id="closeOverlay" style="margin-top:0;">확인</button>
+    <button class="btn btn-primary" id="goCheckFromOverlay" style="margin-top:0;">연수 신청 결과 확인하기</button>
+    <button class="btn btn-secondary" id="closeOverlay" style="margin-top:10px;">닫기</button>
   </div>
 </div>
 
@@ -343,7 +350,37 @@ const STATUS_STYLE = {
 const $ = (id) => document.getElementById(id);
 const applyCard = $('applyCard'), checkCard = $('checkCard');
 const applyForm = $('applyForm');
-const regionEl = $('region'), neisEl = $('neis'), nameEl = $('applicantName'), birthEl = $('birth');
+const regionEl = $('region'), neisEl = $('neis'), neisErr = $('neisErr'), nameEl = $('applicantName'), birthEl = $('birth');
+const NEIS_PATTERN = /^[A-Za-z][0-9]{9}$/;
+
+// 전각(full-width) 문자로 입력된 경우 반각으로 변환 (한/영 입력기 전환 중 실수로 전각이 입력되는 경우 대비)
+function normalizeNeis(raw){
+  return raw
+    .trim()
+    .replace(/\s+/g, '')
+    .replace(/[Ａ-Ｚａ-ｚ０-９]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0));
+}
+
+function validateNeis(showError){
+  const normalized = normalizeNeis(neisEl.value);
+  if(normalized !== neisEl.value.trim()) neisEl.value = normalized;
+  const ok = NEIS_PATTERN.test(normalized);
+  if(!normalized){
+    neisEl.classList.remove('invalid');
+    neisErr.style.display = 'none';
+    return false; // 비어있음 = 아직 미입력, 필수값 체크는 제출 시 별도 처리
+  }
+  if(ok){
+    neisEl.classList.remove('invalid');
+    neisErr.style.display = 'none';
+  } else if(showError){
+    neisEl.classList.add('invalid');
+    neisErr.style.display = 'block';
+  }
+  return ok;
+}
+neisEl.addEventListener('input', ()=> validateNeis(false));
+neisEl.addEventListener('blur', ()=> validateNeis(true));
 const phone1 = $('phone1'), phone2 = $('phone2'), phone3 = $('phone3');
 const courseEl = $('course'), schoolEl = $('school'), memoEl = $('memo');
 const submitBtn = $('submitBtn'), applyError = $('applyError');
@@ -351,7 +388,9 @@ const goCheckBtn = $('goCheckBtn'), backBtn = $('backBtn');
 const checkName = $('checkName'), cphone1 = $('cphone1'), cphone2 = $('cphone2'), cphone3 = $('cphone3');
 const checkBtn = $('checkBtn'), checkError = $('checkError');
 const resultBox = $('resultBox'), emptyNote = $('emptyNote');
-const overlay = $('overlay'), closeOverlay = $('closeOverlay');
+const overlay = $('overlay'), closeOverlay = $('closeOverlay'), goCheckFromOverlay = $('goCheckFromOverlay');
+
+let lastSubmitted = null; // 방금 제출한 성명/연락처 (결과 확인 자동 입력용)
 
 /* ---------- 공립/사립 선택 버튼 ---------- */
 const schoolTypeInput = $('schoolType');
@@ -373,10 +412,11 @@ wirePhoneAutoNext(phone1,phone2,phone3);
 wirePhoneAutoNext(cphone1,cphone2,cphone3);
 
 /* ---------- 화면 전환 ---------- */
-goCheckBtn.addEventListener('click', ()=>{
+function showCheckView(){
   applyCard.style.display='none';
   checkCard.style.display='block';
-});
+}
+goCheckBtn.addEventListener('click', showCheckView);
 backBtn.addEventListener('click', ()=>{
   checkCard.style.display='none';
   applyCard.style.display='block';
@@ -390,7 +430,7 @@ applyForm.addEventListener('submit', async (e)=>{
   applyError.style.display='none';
 
   const region = regionEl.value.trim();
-  const neis = neisEl.value.trim();
+  const neis = normalizeNeis(neisEl.value);
   const name = nameEl.value.trim();
   const birth = birthEl.value;
   const p1=phone1.value.trim(), p2=phone2.value.trim(), p3=phone3.value.trim();
@@ -405,12 +445,20 @@ applyForm.addEventListener('submit', async (e)=>{
     return;
   }
 
+  if(!validateNeis(true)){
+    neisEl.focus();
+    applyError.textContent = 'NEIS 개인번호 형식을 다시 확인해 주세요. (영어 1자리 + 숫자 9자리)';
+    applyError.style.display='block';
+    return;
+  }
+
   submitBtn.disabled = true;
   submitBtn.textContent = '제출 중입니다...';
 
+  const phone = `${p1}-${p2}-${p3}`;
   const { error } = await sb.from('course_applications').insert({
     region, neis_id: neis, name, birth_date: birth,
-    phone: `${p1}-${p2}-${p3}`,
+    phone,
     course, school, school_type: schoolType,
     memo: memo || null,
   });
@@ -420,12 +468,23 @@ applyForm.addEventListener('submit', async (e)=>{
 
   if(error){
     console.error(error);
-    applyError.textContent = '제출 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
+    if(error.message && error.message.includes('neis_id_format')){
+      neisEl.classList.add('invalid');
+      neisErr.style.display = 'block';
+      neisEl.focus();
+      applyError.textContent = 'NEIS 개인번호 형식을 다시 확인해 주세요. (영어 1자리 + 숫자 9자리)';
+    } else {
+      applyError.textContent = '제출 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
+    }
     applyError.style.display='block';
     return;
   }
 
+  lastSubmitted = { name, phone };
+
   applyForm.reset();
+  neisEl.classList.remove('invalid');
+  neisErr.style.display = 'none';
   document.querySelectorAll('#schoolTypeRow .radio-opt').forEach(o=>o.classList.remove('active'));
   document.querySelector('.radio-opt[data-val="공립"]').classList.add('active');
   schoolTypeInput.value = '공립';
@@ -434,8 +493,19 @@ applyForm.addEventListener('submit', async (e)=>{
 });
 closeOverlay.addEventListener('click', ()=> overlay.style.display='none');
 
+goCheckFromOverlay.addEventListener('click', ()=>{
+  overlay.style.display='none';
+  showCheckView();
+  if(lastSubmitted){
+    checkName.value = lastSubmitted.name;
+    const [p1,p2,p3] = lastSubmitted.phone.split('-');
+    cphone1.value = p1; cphone2.value = p2; cphone3.value = p3;
+    runStatusCheck();
+  }
+});
+
 /* ---------- 결과 확인 ---------- */
-checkBtn.addEventListener('click', async ()=>{
+async function runStatusCheck(){
   checkError.style.display='none';
   resultBox.style.display='none';
   emptyNote.style.display='none';
@@ -480,7 +550,8 @@ checkBtn.addEventListener('click', async ()=>{
     <div class="result-row"><span class="k">소속학교</span><span class="v">${row.school} (${row.school_type})</span></div>
   `;
   resultBox.style.display='block';
-});
+}
+checkBtn.addEventListener('click', runStatusCheck);
 </script>
 </body>
 </html>
