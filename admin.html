@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>슬기로운 배구생활 | 관리자</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<style>
+@font-face{
+  font-family:'Pretendard';
+  src:url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/woff2/PretendardVariable.woff2') format('woff2-variations');
+  font-weight:45 920; font-display:swap;
+}
+:root{
+  --navy:#152447; --navy-2:#1f356b;
+  --ink:#152447; --muted:#5b6478;
+  --bg:#eef1f6; --card:#ffffff; --line:#e2e6ee;
+  --gold:#e2a339; --danger:#c14343;
+}
+*{box-sizing:border-box;}
+body{
+  margin:0; font-family:'Pretendard',-apple-system,'Malgun Gothic',sans-serif;
+  background:var(--bg); color:var(--ink); min-height:100vh;
+}
+
+/* login screen */
+#loginScreen{
+  min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;
+}
+.login-box{
+  background:#fff; border-radius:18px; padding:36px 30px; max-width:360px; width:100%;
+  box-shadow:0 14px 34px rgba(21,36,71,.14); text-align:center;
+}
+.login-box .icon{
+  width:54px; height:54px; border-radius:14px; background:var(--navy); color:#fff;
+  display:flex; align-items:center; justify-content:center; font-size:24px; margin:0 auto 16px;
+}
+.login-box h1{font-size:17px; margin:0 0 6px;}
+.login-box p{font-size:13px; color:var(--muted); margin:0 0 22px;}
+.login-box input{
+  width:100%; padding:13px; border:1.5px solid var(--line); border-radius:11px;
+  font-size:15px; text-align:center; letter-spacing:2px; font-family:inherit; margin-bottom:12px;
+}
+.login-box input:focus{outline:none; border-color:var(--navy);}
+.login-box button{
+  width:100%; padding:13px; background:var(--navy); color:#fff; border:none;
+  border-radius:11px; font-weight:800; font-size:14.5px; cursor:pointer; font-family:inherit;
+}
+.login-err{color:var(--danger); font-size:12.5px; font-weight:600; margin:-4px 0 12px; display:none;}
+
+/* dashboard */
+#dashScreen{display:none;}
+.topbar{
+  background:linear-gradient(180deg,var(--navy),var(--navy-2)); color:#fff;
+  padding:20px 24px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
+}
+.topbar h1{font-size:16px; margin:0; font-weight:800;}
+.topbar .sub{font-size:12px; color:#c6cfe3; margin-top:3px;}
+.topbar button{
+  background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); color:#fff;
+  padding:9px 16px; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit;
+}
+
+.wrap{max-width:1180px; margin:0 auto; padding:22px 20px 60px;}
+
+.stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin-bottom:20px;}
+.stat{
+  background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px 16px;
+}
+.stat .n{font-size:22px; font-weight:800; color:var(--navy);}
+.stat .l{font-size:12px; color:var(--muted); font-weight:600; margin-top:2px;}
+
+.toolbar{
+  display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:14px;
+}
+.toolbar input, .toolbar select{
+  padding:10px 12px; border:1.5px solid var(--line); border-radius:10px; font-size:13.5px;
+  font-family:inherit; background:#fff;
+}
+.toolbar input{flex:1; min-width:160px;}
+.toolbar .refresh{
+  background:var(--navy); color:#fff; border:none; padding:10px 16px; border-radius:10px;
+  font-weight:700; font-size:13px; cursor:pointer; font-family:inherit;
+}
+
+.table-wrap{
+  background:#fff; border:1px solid var(--line); border-radius:16px; overflow:auto;
+}
+table{width:100%; border-collapse:collapse; font-size:13.2px; min-width:1080px;}
+thead th{
+  text-align:left; padding:12px 14px; background:#f6f8fc; color:var(--muted);
+  font-weight:700; font-size:12px; border-bottom:1px solid var(--line); white-space:nowrap;
+}
+tbody td{padding:12px 14px; border-bottom:1px solid #eef0f5; vertical-align:middle; white-space:nowrap;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:#fafbfd;}
+.memo-cell{white-space:normal; max-width:160px; color:var(--muted);}
+.status-select{
+  padding:7px 10px; border-radius:8px; border:1.5px solid var(--line); font-size:12.5px;
+  font-weight:700; font-family:inherit; cursor:pointer;
+}
+.del-btn{
+  background:#fbe9e9; color:var(--danger); border:none; padding:7px 12px; border-radius:8px;
+  font-size:12px; font-weight:700; cursor:pointer; font-family:inherit;
+}
+.del-btn:hover{background:#f6d3d3;}
+.empty-row td{text-align:center; color:var(--muted); padding:40px 0;}
+.loading-row td{text-align:center; color:var(--muted); padding:40px 0;}
+</style>
+</head>
+<body>
+
+<!-- 로그인 -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="icon">🔒</div>
+    <h1>관리자 로그인</h1>
+    <p>슬기로운 배구생활 연수 신청 관리 시스템</p>
+    <input type="password" id="pwInput" placeholder="비밀번호 입력" autocomplete="off">
+    <div class="login-err" id="loginErr">비밀번호가 올바르지 않습니다.</div>
+    <button id="loginBtn">로그인</button>
+  </div>
+</div>
+
+<!-- 대시보드 -->
+<div id="dashScreen">
+  <div class="topbar">
+    <div>
+      <h1>슬기로운 배구생활 · 연수 신청 관리</h1>
+      <div class="sub">2027학년도 하반기 특수분야 직무연수</div>
+    </div>
+    <button id="logoutBtn">로그아웃</button>
+  </div>
+
+  <div class="wrap">
+    <div class="stats" id="statsRow"></div>
+    <div class="stats" id="courseStatsRow" style="margin-top:-10px;"></div>
+
+    <div class="toolbar">
+      <input type="text" id="searchInput" placeholder="이름, 학교, 지역으로 검색">
+      <select id="courseFilter">
+        <option value="">전체 기수</option>
+      </select>
+      <select id="statusFilter">
+        <option value="">전체 상태</option>
+      </select>
+      <button class="refresh" id="refreshBtn">새로고침</button>
+      <button class="refresh" id="exportBtn" style="background:#2f8b57;">CSV 다운로드</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>신청일시</th>
+            <th>지역명</th>
+            <th>성명</th>
+            <th>생년월일</th>
+            <th>핸드폰</th>
+            <th>NEIS 번호</th>
+            <th>연수 기수</th>
+            <th>소속학교</th>
+            <th>구분</th>
+            <th>비고</th>
+            <th>상태</th>
+            <th>삭제</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr class="loading-row"><td colspan="12">불러오는 중...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL = "https://pqjuvuflinnrpemqcafl.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxanV2dWZsaW5ucnBlbXFjYWZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NzAzMjQsImV4cCI6MjA5NDA0NjMyNH0.E4sJv1gM9TbWG-2o90aH8wJXZMLRY_uLQ9fgWARX1Ro";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const ADMIN_PASSWORD = "tmfrl2027"; // UI 게이트용 (실제 데이터 접근은 서버 측 RPC에서 비밀번호를 다시 검증합니다)
+
+const STATUS_LIST = ['신청확인중','연수비 입금 대기','연수비 입금 확인','연수 확정','대기명단 등록','연수 신청 취소'];
+const STATUS_STYLE = {
+  '신청확인중':        {bg:'#eef1f6', fg:'#495166'},
+  '연수비 입금 대기':   {bg:'#fdf1de', fg:'#8a5a13'},
+  '연수비 입금 확인':   {bg:'#e5eefc', fg:'#1e4fa0'},
+  '연수 확정':         {bg:'#e6f4ea', fg:'#227a44'},
+  '대기명단 등록':      {bg:'#f2e9fb', fg:'#6b3aa0'},
+  '연수 신청 취소':     {bg:'#fbe9e9', fg:'#b23a3a'},
+};
+
+const $ = (id) => document.getElementById(id);
+let allRows = [];
+let currentPassword = '';
+
+/* ---------- 로그인 ---------- */
+$('loginBtn').addEventListener('click', doLogin);
+$('pwInput').addEventListener('keydown', (e)=>{ if(e.key==='Enter') doLogin(); });
+
+function doLogin(){
+  const pw = $('pwInput').value;
+  if(pw !== ADMIN_PASSWORD){
+    $('loginErr').style.display='block';
+    return;
+  }
+  $('loginErr').style.display='none';
+  currentPassword = pw;
+  $('loginScreen').style.display='none';
+  $('dashScreen').style.display='block';
+  loadData();
+}
+
+$('logoutBtn').addEventListener('click', ()=>{
+  currentPassword = '';
+  $('pwInput').value = '';
+  $('dashScreen').style.display='none';
+  $('loginScreen').style.display='flex';
+});
+
+/* ---------- 데이터 로드 ---------- */
+async function loadData(){
+  $('tbody').innerHTML = '<tr class="loading-row"><td colspan="12">불러오는 중...</td></tr>';
+  const { data, error } = await sb.rpc('admin_list_applications', { p_password: currentPassword });
+  if(error){
+    console.error(error);
+    $('tbody').innerHTML = '<tr class="empty-row"><td colspan="12">데이터를 불러오지 못했습니다. 새로고침해 주세요.</td></tr>';
+    return;
+  }
+  allRows = data || [];
+  populateCourseFilter();
+  populateStatusFilter();
+  renderStats();
+  renderTable();
+}
+$('refreshBtn').addEventListener('click', loadData);
+
+function populateCourseFilter(){
+  const sel = $('courseFilter');
+  const existing = new Set(Array.from(sel.options).map(o=>o.value));
+  [...new Set(allRows.map(r=>r.course))].forEach(c=>{
+    if(!existing.has(c)){
+      const opt = document.createElement('option');
+      opt.value = c; opt.textContent = c;
+      sel.appendChild(opt);
+    }
+  });
+}
+function populateStatusFilter(){
+  const sel = $('statusFilter');
+  if(sel.options.length > 1) return;
+  STATUS_LIST.forEach(s=>{
+    const opt = document.createElement('option');
+    opt.value = s; opt.textContent = s;
+    sel.appendChild(opt);
+  });
+}
+
+function renderStats(){
+  const total = allRows.length;
+  const counts = {};
+  STATUS_LIST.forEach(s=> counts[s]=0);
+  allRows.forEach(r=> counts[r.status] = (counts[r.status]||0)+1);
+
+  const courseCounts = {};
+  allRows.forEach(r=>{
+    // 취소 건은 정원 카운트에서 제외하고 집계 (인원 파악용)
+    if(r.status === '연수 신청 취소') return;
+    courseCounts[r.course] = (courseCounts[r.course]||0)+1;
+  });
+
+  const cards = [`<div class="stat"><div class="n">${total}</div><div class="l">전체 신청</div></div>`]
+    .concat(STATUS_LIST.map(s=>`<div class="stat"><div class="n">${counts[s]}</div><div class="l">${s}</div></div>`));
+  $('statsRow').innerHTML = cards.join('');
+
+  const courseCards = Object.entries(courseCounts).map(([course,n])=>
+    `<div class="stat"><div class="n">${n}</div><div class="l">${course.replace(/\s*\(.*\)$/,'')} (취소 제외)</div></div>`
+  );
+  $('courseStatsRow').innerHTML = courseCards.join('') || '<div class="stat"><div class="l">신청 데이터 없음</div></div>';
+}
+
+/* ---------- 테이블 렌더 ---------- */
+function getFiltered(){
+  const q = $('searchInput').value.trim().toLowerCase();
+  const courseF = $('courseFilter').value;
+  const statusF = $('statusFilter').value;
+  return allRows.filter(r=>{
+    if(courseF && r.course !== courseF) return false;
+    if(statusF && r.status !== statusF) return false;
+    if(q){
+      const hay = `${r.name} ${r.school} ${r.region}`.toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function renderTable(){
+  const rows = getFiltered();
+  if(rows.length===0){
+    $('tbody').innerHTML = '<tr class="empty-row"><td colspan="12">표시할 신청 내역이 없습니다.</td></tr>';
+    return;
+  }
+  $('tbody').innerHTML = rows.map(r=>{
+    const created = new Date(r.created_at);
+    const createdStr = `${created.getFullYear()}.${String(created.getMonth()+1).padStart(2,'0')}.${String(created.getDate()).padStart(2,'0')} ${String(created.getHours()).padStart(2,'0')}:${String(created.getMinutes()).padStart(2,'0')}`;
+    const st = STATUS_STYLE[r.status] || {bg:'#eef1f6', fg:'#495166'};
+    const statusOptions = STATUS_LIST.map(s=>`<option value="${s}" ${s===r.status?'selected':''}>${s}</option>`).join('');
+    return `
+      <tr data-id="${r.id}">
+        <td>${createdStr}</td>
+        <td>${escapeHtml(r.region)}</td>
+        <td>${escapeHtml(r.name)}</td>
+        <td>${r.birth_date}</td>
+        <td>${escapeHtml(r.phone)}</td>
+        <td>${escapeHtml(r.neis_id)}</td>
+        <td>${escapeHtml(r.course)}</td>
+        <td>${escapeHtml(r.school)}</td>
+        <td>${escapeHtml(r.school_type)}</td>
+        <td class="memo-cell">${escapeHtml(r.memo || '-')}</td>
+        <td>
+          <select class="status-select" style="background:${st.bg}; color:${st.fg};" onchange="updateStatus(${r.id}, this.value)">
+            ${statusOptions}
+          </select>
+        </td>
+        <td><button class="del-btn" onclick="deleteRow(${r.id}, '${escapeHtml(r.name).replace(/'/g,"\\'")}')">삭제</button></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+['searchInput','courseFilter','statusFilter'].forEach(id=>{
+  $(id).addEventListener('input', renderTable);
+  $(id).addEventListener('change', renderTable);
+});
+
+/* ---------- 상태 변경 ---------- */
+async function updateStatus(id, status){
+  const { error } = await sb.rpc('admin_update_status', { p_password: currentPassword, p_id: id, p_status: status });
+  if(error){
+    console.error(error);
+    alert('상태 변경에 실패했습니다.');
+    loadData();
+    return;
+  }
+  const row = allRows.find(r=>r.id===id);
+  if(row) row.status = status;
+  renderStats();
+}
+
+/* ---------- CSV 다운로드 ---------- */
+function csvEscape(val){
+  const s = (val===null||val===undefined) ? '' : String(val);
+  if(/[",\n]/.test(s)) return `"${s.replace(/"/g,'""')}"`;
+  return s;
+}
+
+$('exportBtn').addEventListener('click', ()=>{
+  const rows = getFiltered();
+  if(rows.length===0){ alert('내보낼 신청 내역이 없습니다.'); return; }
+
+  const headers = ['신청일시','지역명','성명','생년월일','핸드폰','NEIS 개인번호','연수 기수','소속학교명','공립/사립','비고','상태'];
+  const lines = [headers.map(csvEscape).join(',')];
+
+  rows.forEach(r=>{
+    const created = new Date(r.created_at);
+    const createdStr = `${created.getFullYear()}-${String(created.getMonth()+1).padStart(2,'0')}-${String(created.getDate()).padStart(2,'0')} ${String(created.getHours()).padStart(2,'0')}:${String(created.getMinutes()).padStart(2,'0')}`;
+    lines.push([
+      createdStr, r.region, r.name, r.birth_date, r.phone, r.neis_id,
+      r.course, r.school, r.school_type, r.memo || '', r.status
+    ].map(csvEscape).join(','));
+  });
+
+  const csvContent = '\uFEFF' + lines.join('\r\n'); // BOM 포함 (엑셀 한글 깨짐 방지)
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const today = new Date();
+  const dateStr = `${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}`;
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `슬기로운배구생활_연수신청현황_${dateStr}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+/* ---------- 삭제 ---------- */
+async function deleteRow(id, name){
+  if(!confirm(`${name}님의 신청 내역을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) return;
+  const { error } = await sb.rpc('admin_delete_application', { p_password: currentPassword, p_id: id });
+  if(error){
+    console.error(error);
+    alert('삭제에 실패했습니다.');
+    return;
+  }
+  allRows = allRows.filter(r=>r.id!==id);
+  renderStats();
+  renderTable();
+}
+</script>
+</body>
+</html>

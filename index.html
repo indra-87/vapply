@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>슬기로운 배구생활 | 연수 신청</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<style>
+@font-face{
+  font-family:'Pretendard';
+  src:url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/woff2/PretendardVariable.woff2') format('woff2-variations');
+  font-weight:45 920; font-display:swap;
+}
+:root{
+  --navy:#152447;
+  --navy-2:#1f356b;
+  --ink:#152447;
+  --muted:#5b6478;
+  --bg:#eef1f6;
+  --card:#ffffff;
+  --line:#e2e6ee;
+  --gold:#e2a339;
+  --gold-ink:#5c3d09;
+  --danger:#c14343;
+  --radius:18px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:'Pretendard',-apple-system,'Malgun Gothic',sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  min-height:100vh;
+  padding:0 0 60px;
+}
+
+/* header */
+.hero{
+  position:relative;
+  background:linear-gradient(180deg,var(--navy) 0%,var(--navy-2) 100%);
+  color:#fff;
+  padding:44px 20px 88px;
+  overflow:hidden;
+  text-align:center;
+}
+.hero::before{
+  content:"";
+  position:absolute; inset:0;
+  background-image:repeating-linear-gradient(
+    to bottom, rgba(255,255,255,.06) 0 1px, transparent 1px 34px
+  );
+  pointer-events:none;
+}
+.hero-badge{
+  display:inline-flex; align-items:center; gap:8px;
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.2);
+  color:#fce9c6;
+  font-size:13px; font-weight:600;
+  padding:6px 14px; border-radius:999px;
+  margin-bottom:18px;
+  position:relative;
+}
+.hero h1{
+  font-size:26px; font-weight:800; line-height:1.45; margin:0 0 10px;
+  position:relative; word-break:keep-all;
+}
+.hero p{
+  margin:0; color:#c6cfe3; font-size:14.5px; font-weight:500;
+  position:relative;
+}
+
+/* course schedule strip */
+.schedule-wrap{
+  max-width:560px; margin:-52px auto 0; padding:0 20px;
+  position:relative; z-index:2;
+}
+.schedule{
+  background:var(--card); border-radius:var(--radius);
+  box-shadow:0 14px 34px rgba(21,36,71,.14);
+  padding:18px; display:grid; gap:10px;
+}
+.schedule-item{
+  display:flex; gap:12px; align-items:flex-start;
+  padding:12px; border-radius:12px; background:#f6f8fc;
+  border:1px solid var(--line);
+}
+.schedule-item .tag{
+  flex:none; width:40px; height:40px; border-radius:10px;
+  background:var(--navy); color:#fff; font-weight:800; font-size:13px;
+  display:flex; align-items:center; justify-content:center;
+}
+.schedule-item.term2 .tag{background:var(--gold); color:var(--gold-ink);}
+.schedule-item .txt strong{display:block; font-size:14.5px; font-weight:700; margin-bottom:2px;}
+.schedule-item .txt span{font-size:13px; color:var(--muted); line-height:1.5;}
+
+/* form container */
+.container{max-width:560px; margin:26px auto 0; padding:0 20px;}
+.card{
+  background:var(--card); border-radius:var(--radius);
+  box-shadow:0 10px 28px rgba(21,36,71,.08);
+  padding:30px 26px 26px;
+}
+.card h2{font-size:16.5px; font-weight:800; margin:0 0 18px; color:var(--navy);}
+
+label{
+  font-weight:700; font-size:13.5px; color:var(--navy);
+  display:block; margin:18px 0 7px;
+}
+label:first-of-type{margin-top:0;}
+.hint{font-size:12.5px; color:var(--muted); margin:-3px 0 8px;}
+input[type=text], input[type=date], select{
+  width:100%; padding:12px 13px; font-size:14.5px;
+  border:1.5px solid var(--line); border-radius:11px;
+  background:#fbfcfe; color:var(--ink); font-family:inherit;
+  transition:border-color .15s, box-shadow .15s;
+}
+input::placeholder{color:#a7afc0;}
+input:focus, select:focus{
+  outline:none; border-color:var(--navy);
+  box-shadow:0 0 0 3px rgba(21,36,71,.1);
+  background:#fff;
+}
+select{appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="9"><path d="M1 1l6 6 6-6" stroke="%235b6478" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'); background-repeat:no-repeat; background-position:right 14px center; padding-right:36px;}
+.phone-row{display:flex; align-items:center; gap:8px;}
+.phone-row input{text-align:center;}
+.phone-row span{color:var(--muted); font-weight:600;}
+.radio-row{display:flex; gap:10px;}
+.radio-opt{
+  box-sizing:border-box; flex:1 1 0; width:0; margin:0;
+  border:1.5px solid var(--line); border-radius:11px; padding:11px;
+  text-align:center; font-weight:700; font-size:14px; line-height:1.3;
+  color:var(--muted); cursor:pointer; background:#fbfcfe; user-select:none;
+  font-family:inherit; -webkit-appearance:none; appearance:none;
+}
+.radio-opt.active{border-color:var(--navy); color:var(--navy); background:#eef1fb;}
+
+.btn{
+  width:100%; padding:15px; border:none; border-radius:12px;
+  font-size:15.5px; font-weight:800; cursor:pointer;
+  font-family:inherit; transition:transform .1s, opacity .15s;
+}
+.btn:active{transform:scale(.99);}
+.btn-primary{background:var(--navy); color:#fff; margin-top:26px;}
+.btn-primary:disabled{opacity:.55; cursor:default;}
+.btn-secondary{
+  background:transparent; color:var(--navy); margin-top:12px;
+  border:1.5px solid var(--line);
+}
+.btn-secondary:hover{border-color:var(--navy);}
+
+.error-msg{
+  background:#fdecec; color:var(--danger); border:1px solid #f6c9c9;
+  border-radius:10px; padding:10px 12px; font-size:13px; font-weight:600;
+  margin-top:14px; display:none;
+}
+
+/* status check view */
+.check-card{display:none;}
+.result-box{
+  border:1.5px solid var(--line); border-radius:14px; padding:18px;
+  margin-top:18px; background:#f6f8fc; display:none;
+}
+.result-box .status-pill{
+  display:inline-block; padding:6px 14px; border-radius:999px;
+  font-size:13.5px; font-weight:800; margin-bottom:14px;
+}
+.result-row{
+  display:flex; justify-content:space-between; gap:12px;
+  font-size:13.5px; padding:7px 0; border-bottom:1px dashed #d7dce6;
+}
+.result-row:last-child{border-bottom:none;}
+.result-row .k{color:var(--muted); font-weight:600; flex:none;}
+.result-row .v{font-weight:700; text-align:right;}
+.empty-note{
+  text-align:center; color:var(--muted); font-size:13.5px;
+  padding:18px 6px; display:none;
+}
+
+/* success overlay */
+.overlay{
+  position:fixed; inset:0; background:rgba(15,22,43,.55);
+  display:none; align-items:center; justify-content:center; padding:20px; z-index:50;
+}
+.overlay .sheet{
+  background:#fff; border-radius:20px; max-width:400px; width:100%;
+  padding:30px 26px; text-align:center;
+}
+.overlay .check{
+  width:56px; height:56px; border-radius:50%; background:#e9f5ee; color:#2f8b57;
+  display:flex; align-items:center; justify-content:center; margin:0 auto 16px;
+  font-size:28px; font-weight:800;
+}
+.overlay h3{font-size:17px; font-weight:800; margin:0 0 8px;}
+.overlay p{font-size:13.5px; color:var(--muted); line-height:1.6; margin:0 0 20px;}
+.overlay .bank-note{
+  background:#f6f8fc; border:1px dashed var(--line); border-radius:12px;
+  padding:12px 14px; font-size:12.5px; color:var(--muted); text-align:left; margin-bottom:18px;
+  line-height:1.55;
+}
+
+.foot-note{
+  text-align:center; font-size:12px; color:var(--muted);
+  margin-top:22px; line-height:1.6;
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">🏐 2027학년도 하반기 특수분야 직무연수</div>
+  <h1>슬기로운 배구생활<br>연수 신청서</h1>
+  <p>배구를 즐겁게, 안전하게, 제대로 — 기초부터 실전까지</p>
+</div>
+
+<div class="schedule-wrap">
+  <div class="schedule">
+    <div class="schedule-item term1">
+      <div class="tag">1기</div>
+      <div class="txt">
+        <strong>실전 기술반</strong>
+        <span>2027. 1. 11.(월) ~ 1. 15.(금) · 12:00~16:00 · 5일간</span>
+      </div>
+    </div>
+    <div class="schedule-item term2">
+      <div class="tag">2기</div>
+      <div class="txt">
+        <strong>기본 자세반</strong>
+        <span>2027. 1. 18.(월) ~ 1. 22.(금) · 12:00~16:00 · 5일간</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 신청서 -->
+  <div class="card" id="applyCard">
+    <h2>신청 정보 입력</h2>
+    <form id="applyForm" novalidate>
+      <label for="region">지역명</label>
+      <input type="text" id="region" name="region" placeholder="예: 순천" required>
+
+      <label for="neis">NEIS 개인번호</label>
+      <div class="hint">영어+숫자 10자리</div>
+      <input type="text" id="neis" name="neis" placeholder="영어+숫자 10자리" required>
+
+      <label for="applicantName">성명</label>
+      <input type="text" id="applicantName" name="name" required>
+
+      <label for="birth">생년월일</label>
+      <input type="date" id="birth" name="birth" required>
+
+      <label>핸드폰 번호</label>
+      <div class="phone-row">
+        <input type="text" id="phone1" value="010" maxlength="3" required inputmode="numeric">
+        <span>-</span>
+        <input type="text" id="phone2" maxlength="4" placeholder="0000" required inputmode="numeric">
+        <span>-</span>
+        <input type="text" id="phone3" maxlength="4" placeholder="0000" required inputmode="numeric">
+      </div>
+
+      <label for="course">연수 기수 선택</label>
+      <select id="course" name="course" required>
+        <option value="" selected disabled>기수를 선택해 주세요</option>
+        <option value="1기 · 실전 기술반 (2027.1.11~1.15, 12:00~16:00)">1기 · 실전 기술반 (1.11~1.15)</option>
+        <option value="2기 · 기본 자세반 (2027.1.18~1.22, 12:00~16:00)">2기 · 기본 자세반 (1.18~1.22)</option>
+      </select>
+
+      <label for="school">소속학교명</label>
+      <input type="text" id="school" name="school" placeholder="정식 명칭 기재(예 : OO중학교)" required>
+
+      <label>공립/사립 구분</label>
+      <div class="radio-row" id="schoolTypeRow">
+        <button type="button" class="radio-opt active" data-val="공립">공립</button>
+        <button type="button" class="radio-opt" data-val="사립">사립</button>
+      </div>
+      <input type="hidden" id="schoolType" value="공립">
+
+      <label for="memo">비고 (기타 요청사항)</label>
+      <input type="text" id="memo" name="memo" placeholder="선택 입력">
+
+      <div class="error-msg" id="applyError"></div>
+      <button type="submit" class="btn btn-primary" id="submitBtn">신청서 제출하기</button>
+      <button type="button" class="btn btn-secondary" id="goCheckBtn">연수 신청 결과 확인하기</button>
+    </form>
+  </div>
+
+  <!-- 결과 확인 -->
+  <div class="card check-card" id="checkCard">
+    <h2>연수 신청 결과 확인</h2>
+    <div class="hint" style="margin-bottom:10px;">신청 시 입력한 성명과 핸드폰 번호를 입력해 주세요.</div>
+
+    <label for="checkName">성명</label>
+    <input type="text" id="checkName" placeholder="신청 시 입력한 성명">
+
+    <label>핸드폰 번호</label>
+    <div class="phone-row">
+      <input type="text" id="cphone1" value="010" maxlength="3" inputmode="numeric">
+      <span>-</span>
+      <input type="text" id="cphone2" maxlength="4" placeholder="0000" inputmode="numeric">
+      <span>-</span>
+      <input type="text" id="cphone3" maxlength="4" placeholder="0000" inputmode="numeric">
+    </div>
+
+    <div class="error-msg" id="checkError"></div>
+    <button type="button" class="btn btn-primary" id="checkBtn">조회하기</button>
+    <button type="button" class="btn btn-secondary" id="backBtn">신청서로 돌아가기</button>
+
+    <div class="result-box" id="resultBox"></div>
+    <div class="empty-note" id="emptyNote">일치하는 신청 내역을 찾을 수 없습니다.<br>입력하신 성명과 핸드폰 번호를 다시 확인해 주세요.</div>
+  </div>
+
+  <div class="foot-note">문의사항은 계획서에 기재된 연락처로 연락해 주세요.</div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="sheet">
+    <div class="check">✓</div>
+    <h3>신청이 완료되었습니다</h3>
+    <p>신청 내용을 확인 후 순차적으로 처리됩니다.<br>진행 상황은 [연수 신청 결과 확인하기]에서 확인하실 수 있습니다.</p>
+    <div class="bank-note">💳 연수비 입금 계좌는 추후 문자/공지로 별도 안내드릴 예정입니다.</div>
+    <button class="btn btn-primary" id="closeOverlay" style="margin-top:0;">확인</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL = "https://pqjuvuflinnrpemqcafl.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxanV2dWZsaW5ucnBlbXFjYWZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NzAzMjQsImV4cCI6MjA5NDA0NjMyNH0.E4sJv1gM9TbWG-2o90aH8wJXZMLRY_uLQ9fgWARX1Ro";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const STATUS_STYLE = {
+  '신청확인중':        {bg:'#eef1f6', fg:'#495166'},
+  '연수비 입금 대기':   {bg:'#fdf1de', fg:'#8a5a13'},
+  '연수비 입금 확인':   {bg:'#e5eefc', fg:'#1e4fa0'},
+  '연수 확정':         {bg:'#e6f4ea', fg:'#227a44'},
+  '대기명단 등록':      {bg:'#f2e9fb', fg:'#6b3aa0'},
+  '연수 신청 취소':     {bg:'#fbe9e9', fg:'#b23a3a'},
+};
+
+/* ---------- 엘리먼트 참조 ---------- */
+const $ = (id) => document.getElementById(id);
+const applyCard = $('applyCard'), checkCard = $('checkCard');
+const applyForm = $('applyForm');
+const regionEl = $('region'), neisEl = $('neis'), nameEl = $('applicantName'), birthEl = $('birth');
+const phone1 = $('phone1'), phone2 = $('phone2'), phone3 = $('phone3');
+const courseEl = $('course'), schoolEl = $('school'), memoEl = $('memo');
+const submitBtn = $('submitBtn'), applyError = $('applyError');
+const goCheckBtn = $('goCheckBtn'), backBtn = $('backBtn');
+const checkName = $('checkName'), cphone1 = $('cphone1'), cphone2 = $('cphone2'), cphone3 = $('cphone3');
+const checkBtn = $('checkBtn'), checkError = $('checkError');
+const resultBox = $('resultBox'), emptyNote = $('emptyNote');
+const overlay = $('overlay'), closeOverlay = $('closeOverlay');
+
+/* ---------- 공립/사립 선택 버튼 ---------- */
+const schoolTypeInput = $('schoolType');
+document.querySelectorAll('#schoolTypeRow .radio-opt').forEach(el=>{
+  el.addEventListener('click', ()=>{
+    document.querySelectorAll('#schoolTypeRow .radio-opt').forEach(o=>o.classList.remove('active'));
+    el.classList.add('active');
+    schoolTypeInput.value = el.dataset.val;
+  });
+});
+
+/* ---------- 전화번호 입력 자동 이동 ---------- */
+function wirePhoneAutoNext(p1,p2,p3){
+  p2.addEventListener('input', ()=>{ p2.value=p2.value.replace(/\D/g,''); if(p2.value.length===4) p3.focus(); });
+  p3.addEventListener('input', ()=>{ p3.value=p3.value.replace(/\D/g,''); });
+  p1.addEventListener('input', ()=>{ p1.value=p1.value.replace(/\D/g,''); });
+}
+wirePhoneAutoNext(phone1,phone2,phone3);
+wirePhoneAutoNext(cphone1,cphone2,cphone3);
+
+/* ---------- 화면 전환 ---------- */
+goCheckBtn.addEventListener('click', ()=>{
+  applyCard.style.display='none';
+  checkCard.style.display='block';
+});
+backBtn.addEventListener('click', ()=>{
+  checkCard.style.display='none';
+  applyCard.style.display='block';
+  resultBox.style.display='none';
+  emptyNote.style.display='none';
+});
+
+/* ---------- 신청서 제출 ---------- */
+applyForm.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  applyError.style.display='none';
+
+  const region = regionEl.value.trim();
+  const neis = neisEl.value.trim();
+  const name = nameEl.value.trim();
+  const birth = birthEl.value;
+  const p1=phone1.value.trim(), p2=phone2.value.trim(), p3=phone3.value.trim();
+  const course = courseEl.value;
+  const school = schoolEl.value.trim();
+  const schoolType = schoolTypeInput.value;
+  const memo = memoEl.value.trim();
+
+  if(!region||!neis||!name||!birth||!p1||p2.length!==4||p3.length!==4||!course||!school||!schoolType){
+    applyError.textContent = '필수 항목을 모두 입력해 주세요.';
+    applyError.style.display='block';
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = '제출 중입니다...';
+
+  const { error } = await sb.from('course_applications').insert({
+    region, neis_id: neis, name, birth_date: birth,
+    phone: `${p1}-${p2}-${p3}`,
+    course, school, school_type: schoolType,
+    memo: memo || null,
+  });
+
+  submitBtn.disabled = false;
+  submitBtn.textContent = '신청서 제출하기';
+
+  if(error){
+    console.error(error);
+    applyError.textContent = '제출 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
+    applyError.style.display='block';
+    return;
+  }
+
+  applyForm.reset();
+  document.querySelectorAll('#schoolTypeRow .radio-opt').forEach(o=>o.classList.remove('active'));
+  document.querySelector('.radio-opt[data-val="공립"]').classList.add('active');
+  schoolTypeInput.value = '공립';
+  phone1.value='010';
+  overlay.style.display='flex';
+});
+closeOverlay.addEventListener('click', ()=> overlay.style.display='none');
+
+/* ---------- 결과 확인 ---------- */
+checkBtn.addEventListener('click', async ()=>{
+  checkError.style.display='none';
+  resultBox.style.display='none';
+  emptyNote.style.display='none';
+
+  const name = checkName.value.trim();
+  const p1=cphone1.value.trim(), p2=cphone2.value.trim(), p3=cphone3.value.trim();
+  if(!name || !p1 || p2.length!==4 || p3.length!==4){
+    checkError.textContent = '성명과 핸드폰 번호를 정확히 입력해 주세요.';
+    checkError.style.display='block';
+    return;
+  }
+  const phone = `${p1}-${p2}-${p3}`;
+
+  checkBtn.disabled = true;
+  checkBtn.textContent = '조회 중...';
+  const { data, error } = await sb.rpc('check_application_status', { p_name: name, p_phone: phone });
+  checkBtn.disabled = false;
+  checkBtn.textContent = '조회하기';
+
+  if(error){
+    console.error(error);
+    checkError.textContent = '조회 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
+    checkError.style.display='block';
+    return;
+  }
+
+  if(!data || data.length===0){
+    emptyNote.style.display='block';
+    return;
+  }
+
+  const row = data[0];
+  const st = STATUS_STYLE[row.status] || {bg:'#eef1f6', fg:'#495166'};
+  const created = new Date(row.created_at);
+  const createdStr = `${created.getFullYear()}.${String(created.getMonth()+1).padStart(2,'0')}.${String(created.getDate()).padStart(2,'0')}`;
+
+  resultBox.innerHTML = `
+    <span class="status-pill" style="background:${st.bg}; color:${st.fg};">${row.status}</span>
+    <div class="result-row"><span class="k">신청일</span><span class="v">${createdStr}</span></div>
+    <div class="result-row"><span class="k">지역명</span><span class="v">${row.region}</span></div>
+    <div class="result-row"><span class="k">연수 기수</span><span class="v">${row.course}</span></div>
+    <div class="result-row"><span class="k">소속학교</span><span class="v">${row.school} (${row.school_type})</span></div>
+  `;
+  resultBox.style.display='block';
+});
+</script>
+</body>
+</html>
