@@ -213,7 +213,7 @@ select{appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns
 <body>
 
 <div class="hero">
-  <div class="hero-badge">🏐 2027학년도 하반기 특수분야 직무연수</div>
+  <div class="hero-badge">🏐 2026학년도 하반기 특수분야 직무연수</div>
   <h1>슬기로운 배구생활<br>연수 신청서</h1>
   <p>배구를 즐겁게, 안전하게, 제대로 — 기초부터 실전까지</p>
 </div>
@@ -238,6 +238,14 @@ select{appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns
 </div>
 
 <div class="container">
+
+  <!-- 신청 마감 안내 -->
+  <div class="card" id="closedCard" style="display:none; text-align:center; padding:44px 26px;">
+    <div style="font-size:38px; margin-bottom:14px;">🚫</div>
+    <h2 style="margin-bottom:10px;" id="closedTitle">지금은 연수 신청 기간이 아닙니다.</h2>
+    <p style="color:var(--muted); font-size:13.5px; line-height:1.6; margin:0 0 24px;">문의사항은 계획서에 기재된 연락처로 연락해 주세요.</p>
+    <button type="button" class="btn btn-secondary" id="goCheckFromClosed" style="margin-top:0;">연수 신청 결과 확인하기</button>
+  </div>
 
   <!-- 신청서 -->
   <div class="card" id="applyCard">
@@ -389,6 +397,8 @@ const checkName = $('checkName'), cphone1 = $('cphone1'), cphone2 = $('cphone2')
 const checkBtn = $('checkBtn'), checkError = $('checkError');
 const resultBox = $('resultBox'), emptyNote = $('emptyNote');
 const overlay = $('overlay'), closeOverlay = $('closeOverlay'), goCheckFromOverlay = $('goCheckFromOverlay');
+const closedCard = $('closedCard'), closedTitle = $('closedTitle'), goCheckFromClosed = $('goCheckFromClosed');
+let applicationsOpen = true; // Supabase에서 상태 조회 전까지는 기본적으로 신청 가능하다고 가정
 
 let lastSubmitted = null; // 방금 제출한 성명/연락처 (결과 확인 자동 입력용)
 
@@ -414,20 +424,52 @@ wirePhoneAutoNext(cphone1,cphone2,cphone3);
 /* ---------- 화면 전환 ---------- */
 function showCheckView(){
   applyCard.style.display='none';
+  closedCard.style.display='none';
   checkCard.style.display='block';
 }
-goCheckBtn.addEventListener('click', showCheckView);
-backBtn.addEventListener('click', ()=>{
+function showApplyOrClosedView(){
   checkCard.style.display='none';
-  applyCard.style.display='block';
   resultBox.style.display='none';
   emptyNote.style.display='none';
-});
+  if(applicationsOpen){
+    closedCard.style.display='none';
+    applyCard.style.display='block';
+  } else {
+    applyCard.style.display='none';
+    closedCard.style.display='block';
+  }
+}
+goCheckBtn.addEventListener('click', showCheckView);
+goCheckFromClosed.addEventListener('click', showCheckView);
+backBtn.addEventListener('click', showApplyOrClosedView);
+
+/* ---------- 신청 접수 개시/중지 상태 조회 ---------- */
+async function loadApplicationOpenState(){
+  const { data, error } = await sb.from('course_config').select('is_open, closed_message').eq('id', 1).single();
+  if(error){
+    console.error(error);
+    return; // 조회 실패 시 기본값(신청 가능)으로 유지
+  }
+  applicationsOpen = data.is_open !== false;
+  if(data.closed_message) closedTitle.textContent = data.closed_message;
+  if(!applicationsOpen){
+    applyCard.style.display='none';
+    closedCard.style.display='block';
+  }
+}
+loadApplicationOpenState();
 
 /* ---------- 신청서 제출 ---------- */
 applyForm.addEventListener('submit', async (e)=>{
   e.preventDefault();
   applyError.style.display='none';
+
+  if(!applicationsOpen){
+    applyError.textContent = '지금은 연수 신청 기간이 아닙니다.';
+    applyError.style.display='block';
+    showApplyOrClosedView();
+    return;
+  }
 
   const region = regionEl.value.trim();
   const neis = normalizeNeis(neisEl.value);
