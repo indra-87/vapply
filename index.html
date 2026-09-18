@@ -275,6 +275,13 @@ select{appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns
       <label for="applicantName">성명</label>
       <input type="text" id="applicantName" name="name" required>
 
+      <label>성별</label>
+      <div class="radio-row" id="genderRow">
+        <button type="button" class="radio-opt" data-val="여자">여자</button>
+        <button type="button" class="radio-opt" data-val="남자">남자</button>
+      </div>
+      <input type="hidden" id="gender" value="">
+
       <label>생년월일</label>
       <div class="birth-row">
         <select id="birthYear" required><option value="" selected disabled>년도</option></select>
@@ -342,6 +349,71 @@ select{appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns
     <div class="empty-note" id="emptyNote">일치하는 신청 내역을 찾을 수 없습니다.<br>입력하신 성명과 핸드폰 번호를 다시 확인해 주세요.</div>
   </div>
 
+  <!-- 신청서 수정 -->
+  <div class="card check-card" id="editCard">
+    <h2>신청서 수정하기</h2>
+    <div class="hint" style="margin-bottom:10px;">'신청확인중' 상태일 때만 수정할 수 있습니다.</div>
+    <form id="editForm" novalidate>
+      <label for="edit_region">지역명</label>
+      <input type="text" id="edit_region" placeholder="예: 여수" required>
+
+      <label for="edit_neis">NEIS 개인번호</label>
+      <div class="hint">영어 1자리 + 숫자 9자리 (총 10자리)</div>
+      <input type="text" id="edit_neis" placeholder="예: Q123456789" maxlength="10" required>
+      <div class="field-err" id="edit_neisErr">영어 1자리 + 숫자 9자리 형식으로 입력해 주세요. (예: Q123456789)</div>
+
+      <label for="edit_name">성명</label>
+      <input type="text" id="edit_name" required>
+
+      <label>성별</label>
+      <div class="radio-row" id="edit_genderRow">
+        <button type="button" class="radio-opt" data-val="여자">여자</button>
+        <button type="button" class="radio-opt" data-val="남자">남자</button>
+      </div>
+      <input type="hidden" id="edit_gender" value="">
+
+      <label>생년월일</label>
+      <div class="birth-row">
+        <select id="edit_birthYear" required><option value="" selected disabled>년도</option></select>
+        <select id="edit_birthMonth" required><option value="" selected disabled>월</option></select>
+        <select id="edit_birthDay" required><option value="" selected disabled>일</option></select>
+      </div>
+
+      <label>핸드폰 번호</label>
+      <div class="phone-row">
+        <input type="text" id="edit_phone1" maxlength="3" required inputmode="numeric">
+        <span>-</span>
+        <input type="text" id="edit_phone2" maxlength="4" placeholder="0000" required inputmode="numeric">
+        <span>-</span>
+        <input type="text" id="edit_phone3" maxlength="4" placeholder="0000" required inputmode="numeric">
+      </div>
+
+      <label for="edit_course">연수 기수 선택</label>
+      <select id="edit_course" required>
+        <option value="" disabled>기수를 선택해 주세요</option>
+        <option value="1기 · 실전 기술반 (2027.1.11~1.15, 12:00~16:00)">1기 · 실전 기술반 (1.11~1.15)</option>
+        <option value="2기 · 기본 자세반 (2027.1.18~1.22, 12:00~16:00)">2기 · 기본 자세반 (1.18~1.22)</option>
+      </select>
+
+      <label for="edit_school">소속학교명</label>
+      <input type="text" id="edit_school" placeholder="정식 명칭 기재(예: OO 초등학교)" required>
+
+      <label>공립/사립 구분</label>
+      <div class="radio-row" id="edit_schoolTypeRow">
+        <button type="button" class="radio-opt" data-val="공립">공립</button>
+        <button type="button" class="radio-opt" data-val="사립">사립</button>
+      </div>
+      <input type="hidden" id="edit_schoolType" value="">
+
+      <label for="edit_memo">비고 (기타 요청사항)</label>
+      <input type="text" id="edit_memo" placeholder="선택 입력">
+
+      <div class="error-msg" id="editError"></div>
+      <button type="submit" class="btn btn-primary" id="editSubmitBtn">수정 완료하기</button>
+      <button type="button" class="btn btn-secondary" id="editCancelBtn">취소하고 돌아가기</button>
+    </form>
+  </div>
+
   <div class="foot-note">문의사항은 계획서에 기재된 연락처로 연락해 주세요.</div>
 </div>
 
@@ -350,7 +422,7 @@ select{appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns
     <div class="check">✓</div>
     <h3>신청이 완료되었습니다</h3>
     <p>신청 내용을 확인 후 순차적으로 처리됩니다.<br>진행 상황은 [연수 신청 결과 확인하기]에서 확인하실 수 있습니다.</p>
-    <div class="bank-note">💳 연수비 입금 계좌는 추후 문자/공지로 별도 안내드릴 예정입니다.</div>
+    <div class="bank-note">📋 연수 신청 시 입력한 정보는 [연수 신청 결과 확인하기]에서 확인할 수 있으며, '신청확인중' 상태일 경우 수정이 가능합니다.</div>
     <button class="btn btn-primary" id="goCheckFromOverlay" style="margin-top:0;">연수 신청 결과 확인하기</button>
     <button class="btn btn-secondary" id="closeOverlay" style="margin-top:10px;">닫기</button>
   </div>
@@ -387,24 +459,25 @@ function normalizeNeis(raw){
     .replace(/[Ａ-Ｚａ-ｚ０-９]/g, ch => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0));
 }
 
-function validateNeis(showError){
-  const normalized = normalizeNeis(neisEl.value);
-  if(normalized !== neisEl.value.trim()) neisEl.value = normalized;
+function validateNeisField(inputEl, errEl, showError){
+  const normalized = normalizeNeis(inputEl.value);
+  if(normalized !== inputEl.value.trim()) inputEl.value = normalized;
   const ok = NEIS_PATTERN.test(normalized);
   if(!normalized){
-    neisEl.classList.remove('invalid');
-    neisErr.style.display = 'none';
+    inputEl.classList.remove('invalid');
+    errEl.style.display = 'none';
     return false; // 비어있음 = 아직 미입력, 필수값 체크는 제출 시 별도 처리
   }
   if(ok){
-    neisEl.classList.remove('invalid');
-    neisErr.style.display = 'none';
+    inputEl.classList.remove('invalid');
+    errEl.style.display = 'none';
   } else if(showError){
-    neisEl.classList.add('invalid');
-    neisErr.style.display = 'block';
+    inputEl.classList.add('invalid');
+    errEl.style.display = 'block';
   }
   return ok;
 }
+function validateNeis(showError){ return validateNeisField(neisEl, neisErr, showError); }
 neisEl.addEventListener('input', ()=> validateNeis(false));
 neisEl.addEventListener('blur', ()=> validateNeis(true));
 const phone1 = $('phone1'), phone2 = $('phone2'), phone3 = $('phone3');
@@ -418,7 +491,36 @@ const overlay = $('overlay'), closeOverlay = $('closeOverlay'), goCheckFromOverl
 const closedCard = $('closedCard'), closedTitle = $('closedTitle'), goCheckFromClosed = $('goCheckFromClosed');
 let applicationsOpen = true; // Supabase에서 상태 조회 전까지는 기본적으로 신청 가능하다고 가정
 
+/* ---------- 신청서 수정 카드 엘리먼트 참조 ---------- */
+const editCard = $('editCard'), editForm = $('editForm'), editError = $('editError'), editSubmitBtn = $('editSubmitBtn'), editCancelBtn = $('editCancelBtn');
+const edit_region = $('edit_region'), edit_neis = $('edit_neis'), edit_neisErr = $('edit_neisErr'), edit_name = $('edit_name');
+const edit_birthYear = $('edit_birthYear'), edit_birthMonth = $('edit_birthMonth'), edit_birthDay = $('edit_birthDay');
+const edit_phone1 = $('edit_phone1'), edit_phone2 = $('edit_phone2'), edit_phone3 = $('edit_phone3');
+const edit_course = $('edit_course'), edit_school = $('edit_school'), edit_memo = $('edit_memo');
+const editGenderInput = $('edit_gender'), editSchoolTypeInput = $('edit_schoolType');
+wirePhoneAutoNext(edit_phone1, edit_phone2, edit_phone3);
+
+document.querySelectorAll('#edit_genderRow .radio-opt').forEach(el=>{
+  el.addEventListener('click', ()=>{
+    document.querySelectorAll('#edit_genderRow .radio-opt').forEach(o=>o.classList.remove('active'));
+    el.classList.add('active');
+    editGenderInput.value = el.dataset.val;
+  });
+});
+document.querySelectorAll('#edit_schoolTypeRow .radio-opt').forEach(el=>{
+  el.addEventListener('click', ()=>{
+    document.querySelectorAll('#edit_schoolTypeRow .radio-opt').forEach(o=>o.classList.remove('active'));
+    el.classList.add('active');
+    editSchoolTypeInput.value = el.dataset.val;
+  });
+});
+function validateEditNeis(showError){ return validateNeisField(edit_neis, edit_neisErr, showError); }
+edit_neis.addEventListener('input', ()=> validateEditNeis(false));
+edit_neis.addEventListener('blur', ()=> validateEditNeis(true));
+
 let lastSubmitted = null; // 방금 제출한 성명/연락처 (결과 확인 자동 입력용)
+let lastCheckRows = [];   // 최근 조회된 신청 내역 (수정하기에 사용)
+let lastCheckOrigName = '', lastCheckOrigPhone = ''; // 조회에 사용한 원본 성명/연락처 (본인 확인용)
 
 /* ---------- 공립/사립 선택 버튼 ---------- */
 const schoolTypeInput = $('schoolType');
@@ -427,6 +529,16 @@ document.querySelectorAll('#schoolTypeRow .radio-opt').forEach(el=>{
     document.querySelectorAll('#schoolTypeRow .radio-opt').forEach(o=>o.classList.remove('active'));
     el.classList.add('active');
     schoolTypeInput.value = el.dataset.val;
+  });
+});
+
+/* ---------- 성별 선택 버튼 (기본 미선택) ---------- */
+const genderInput = $('gender');
+document.querySelectorAll('#genderRow .radio-opt').forEach(el=>{
+  el.addEventListener('click', ()=>{
+    document.querySelectorAll('#genderRow .radio-opt').forEach(o=>o.classList.remove('active'));
+    el.classList.add('active');
+    genderInput.value = el.dataset.val;
   });
 });
 
@@ -439,48 +551,56 @@ function wirePhoneAutoNext(p1,p2,p3){
 wirePhoneAutoNext(phone1,phone2,phone3);
 wirePhoneAutoNext(cphone1,cphone2,cphone3);
 
-/* ---------- 생년월일 년/월/일 select 초기화 ---------- */
-(function initBirthSelects(){
+/* ---------- 생년월일 년/월/일 select 초기화 (범용) ---------- */
+function populateBirthSelects(yearEl, monthEl){
   const thisYear = new Date().getFullYear();
   for(let y = thisYear; y >= 1950; y--){
     const opt = document.createElement('option');
     opt.value = y; opt.textContent = `${y}년`;
-    birthYearEl.appendChild(opt);
+    yearEl.appendChild(opt);
   }
   for(let m = 1; m <= 12; m++){
     const opt = document.createElement('option');
     opt.value = m; opt.textContent = `${m}월`;
-    birthMonthEl.appendChild(opt);
+    monthEl.appendChild(opt);
   }
-  refreshBirthDays();
-})();
-
-function refreshBirthDays(){
-  const y = Number(birthYearEl.value) || null;
-  const m = Number(birthMonthEl.value) || null;
+}
+function refreshDaySelect(yearEl, monthEl, dayEl){
+  const y = Number(yearEl.value) || null;
+  const m = Number(monthEl.value) || null;
   const daysInMonth = (y && m) ? new Date(y, m, 0).getDate() : 31;
-  const prevSelected = birthDayEl.value;
-  birthDayEl.innerHTML = '<option value="" selected disabled>일</option>';
+  const prevSelected = dayEl.value;
+  dayEl.innerHTML = '<option value="" selected disabled>일</option>';
   for(let d = 1; d <= daysInMonth; d++){
     const opt = document.createElement('option');
     opt.value = d; opt.textContent = `${d}일`;
-    birthDayEl.appendChild(opt);
+    dayEl.appendChild(opt);
   }
   if(prevSelected && Number(prevSelected) <= daysInMonth){
-    birthDayEl.value = prevSelected;
+    dayEl.value = prevSelected;
   }
 }
-birthYearEl.addEventListener('change', refreshBirthDays);
-birthMonthEl.addEventListener('change', refreshBirthDays);
+
+populateBirthSelects(birthYearEl, birthMonthEl);
+refreshDaySelect(birthYearEl, birthMonthEl, birthDayEl);
+birthYearEl.addEventListener('change', ()=> refreshDaySelect(birthYearEl, birthMonthEl, birthDayEl));
+birthMonthEl.addEventListener('change', ()=> refreshDaySelect(birthYearEl, birthMonthEl, birthDayEl));
+
+populateBirthSelects(edit_birthYear, edit_birthMonth);
+refreshDaySelect(edit_birthYear, edit_birthMonth, edit_birthDay);
+edit_birthYear.addEventListener('change', ()=> refreshDaySelect(edit_birthYear, edit_birthMonth, edit_birthDay));
+edit_birthMonth.addEventListener('change', ()=> refreshDaySelect(edit_birthYear, edit_birthMonth, edit_birthDay));
 
 /* ---------- 화면 전환 ---------- */
 function showCheckView(){
   applyCard.style.display='none';
   closedCard.style.display='none';
+  editCard.style.display='none';
   checkCard.style.display='block';
 }
 function showApplyOrClosedView(){
   checkCard.style.display='none';
+  editCard.style.display='none';
   resultBox.style.display='none';
   emptyNote.style.display='none';
   if(applicationsOpen){
@@ -526,6 +646,7 @@ applyForm.addEventListener('submit', async (e)=>{
   const region = regionEl.value.trim();
   const neis = normalizeNeis(neisEl.value);
   const name = nameEl.value.trim();
+  const gender = genderInput.value;
   const by = birthYearEl.value, bm = birthMonthEl.value, bd = birthDayEl.value;
   const birth = (by && bm && bd) ? `${by}-${String(bm).padStart(2,'0')}-${String(bd).padStart(2,'0')}` : '';
   const p1=phone1.value.trim(), p2=phone2.value.trim(), p3=phone3.value.trim();
@@ -534,7 +655,7 @@ applyForm.addEventListener('submit', async (e)=>{
   const schoolType = schoolTypeInput.value;
   const memo = memoEl.value.trim();
 
-  if(!region||!neis||!name||!birth||!p1||p2.length!==4||p3.length!==4||!course||!school||!schoolType){
+  if(!region||!neis||!name||!gender||!birth||!p1||p2.length!==4||p3.length!==4||!course||!school||!schoolType){
     applyError.textContent = '필수 항목을 모두 입력해 주세요.';
     applyError.style.display='block';
     return;
@@ -552,7 +673,7 @@ applyForm.addEventListener('submit', async (e)=>{
 
   const phone = `${p1}-${p2}-${p3}`;
   const { error } = await sb.from('course_applications').insert({
-    region, neis_id: neis, name, birth_date: birth,
+    region, neis_id: neis, name, gender, birth_date: birth,
     phone,
     course, school, school_type: schoolType,
     memo: memo || null,
@@ -578,9 +699,11 @@ applyForm.addEventListener('submit', async (e)=>{
   lastSubmitted = { name, phone };
 
   applyForm.reset();
-  refreshBirthDays();
+  refreshDaySelect(birthYearEl, birthMonthEl, birthDayEl);
   neisEl.classList.remove('invalid');
   neisErr.style.display = 'none';
+  document.querySelectorAll('#genderRow .radio-opt').forEach(o=>o.classList.remove('active'));
+  genderInput.value = '';
   document.querySelectorAll('#schoolTypeRow .radio-opt').forEach(o=>o.classList.remove('active'));
   document.querySelector('.radio-opt[data-val="공립"]').classList.add('active');
   schoolTypeInput.value = '공립';
@@ -633,12 +756,20 @@ async function runStatusCheck(){
     return;
   }
 
+  lastCheckRows = data;
+  lastCheckOrigName = name;
+  lastCheckOrigPhone = phone;
+
   resultBox.innerHTML =
     (data.length > 1 ? `<div class="result-count">총 ${data.length}건의 신청 내역이 있습니다.</div>` : '') +
     data.map(row => {
     const st = STATUS_STYLE[row.status] || {bg:'#eef1f6', fg:'#495166'};
     const created = new Date(row.created_at);
     const createdStr = `${created.getFullYear()}.${String(created.getMonth()+1).padStart(2,'0')}.${String(created.getDate()).padStart(2,'0')}`;
+    const birthStr = row.birth_date ? String(row.birth_date).replace(/-/g,'.') : '-';
+    const editBtn = row.status === '신청확인중'
+      ? `<button type="button" class="btn btn-secondary edit-trigger-btn" data-id="${row.id}" style="margin-top:14px;">신청서 수정하기</button>`
+      : '';
     return `
       <div class="result-entry">
         <span class="status-pill" style="background:${st.bg}; color:${st.fg};">${row.status}</span>
@@ -646,11 +777,19 @@ async function runStatusCheck(){
         <div class="result-row"><span class="k">지역명</span><span class="v">${row.region}</span></div>
         <div class="result-row"><span class="k">연수 기수</span><span class="v">${row.course}</span></div>
         <div class="result-row"><span class="k">소속학교</span><span class="v">${row.school} (${row.school_type})</span></div>
+        <div class="result-row"><span class="k">성별</span><span class="v">${row.gender || '-'}</span></div>
+        <div class="result-row"><span class="k">NEIS 개인번호</span><span class="v">${row.neis_id || '-'}</span></div>
+        <div class="result-row"><span class="k">생년월일</span><span class="v">${birthStr}</span></div>
         ${statusNoteHtml(row.status, st)}
+        ${editBtn}
       </div>
     `;
   }).join('<div class="result-divider"></div>');
   resultBox.style.display='block';
+
+  document.querySelectorAll('.edit-trigger-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> openEditForm(Number(btn.dataset.id)));
+  });
 }
 
 function statusNoteHtml(status, st){
@@ -688,6 +827,141 @@ function statusNoteHtml(status, st){
   return '';
 }
 checkBtn.addEventListener('click', runStatusCheck);
+
+/* ---------- 신청서 수정하기 ---------- */
+let editingId = null;
+
+function showEditView(){
+  applyCard.style.display='none';
+  closedCard.style.display='none';
+  checkCard.style.display='none';
+  editCard.style.display='block';
+}
+
+function openEditForm(id){
+  const row = lastCheckRows.find(r => r.id === id);
+  if(!row) return;
+
+  editingId = row.id;
+  editError.style.display = 'none';
+
+  edit_region.value = row.region || '';
+  edit_neis.value = row.neis_id || '';
+  edit_neis.classList.remove('invalid');
+  edit_neisErr.style.display = 'none';
+  edit_name.value = row.name || '';
+
+  document.querySelectorAll('#edit_genderRow .radio-opt').forEach(o=>{
+    o.classList.toggle('active', o.dataset.val === row.gender);
+  });
+  editGenderInput.value = row.gender || '';
+
+  if(row.birth_date){
+    const [by, bm, bd] = String(row.birth_date).split('-');
+    edit_birthYear.value = String(Number(by));
+    edit_birthMonth.value = String(Number(bm));
+    refreshDaySelect(edit_birthYear, edit_birthMonth, edit_birthDay);
+    edit_birthDay.value = String(Number(bd));
+  }
+
+  const [p1, p2, p3] = (row.phone || '--').split('-');
+  edit_phone1.value = p1 || '010';
+  edit_phone2.value = p2 || '';
+  edit_phone3.value = p3 || '';
+
+  edit_course.value = row.course || '';
+  edit_school.value = row.school || '';
+
+  document.querySelectorAll('#edit_schoolTypeRow .radio-opt').forEach(o=>{
+    o.classList.toggle('active', o.dataset.val === row.school_type);
+  });
+  editSchoolTypeInput.value = row.school_type || '';
+
+  edit_memo.value = row.memo || '';
+
+  showEditView();
+}
+
+editCancelBtn.addEventListener('click', ()=>{
+  editingId = null;
+  showCheckView();
+});
+
+editForm.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  editError.style.display = 'none';
+
+  const region = edit_region.value.trim();
+  const neis = normalizeNeis(edit_neis.value);
+  const name = edit_name.value.trim();
+  const gender = editGenderInput.value;
+  const by = edit_birthYear.value, bm = edit_birthMonth.value, bd = edit_birthDay.value;
+  const birth = (by && bm && bd) ? `${by}-${String(bm).padStart(2,'0')}-${String(bd).padStart(2,'0')}` : '';
+  const p1 = edit_phone1.value.trim(), p2 = edit_phone2.value.trim(), p3 = edit_phone3.value.trim();
+  const course = edit_course.value;
+  const school = edit_school.value.trim();
+  const schoolType = editSchoolTypeInput.value;
+  const memo = edit_memo.value.trim();
+
+  if(!region||!neis||!name||!gender||!birth||!p1||p2.length!==4||p3.length!==4||!course||!school||!schoolType){
+    editError.textContent = '필수 항목을 모두 입력해 주세요.';
+    editError.style.display = 'block';
+    return;
+  }
+
+  if(!validateEditNeis(true)){
+    edit_neis.focus();
+    editError.textContent = 'NEIS 개인번호 형식을 다시 확인해 주세요. (영어 1자리 + 숫자 9자리)';
+    editError.style.display = 'block';
+    return;
+  }
+
+  const phone = `${p1}-${p2}-${p3}`;
+
+  editSubmitBtn.disabled = true;
+  editSubmitBtn.textContent = '수정 중입니다...';
+
+  const { data, error } = await sb.rpc('update_own_application', {
+    p_id: editingId,
+    p_orig_name: lastCheckOrigName,
+    p_orig_phone: lastCheckOrigPhone,
+    p_region: region,
+    p_neis_id: neis,
+    p_name: name,
+    p_gender: gender,
+    p_birth_date: birth,
+    p_phone: phone,
+    p_course: course,
+    p_school: school,
+    p_school_type: schoolType,
+    p_memo: memo || null,
+  });
+
+  editSubmitBtn.disabled = false;
+  editSubmitBtn.textContent = '수정 완료하기';
+
+  if(error){
+    console.error(error);
+    if(error.message && error.message.includes('neis_id_format')){
+      edit_neis.classList.add('invalid');
+      edit_neisErr.style.display = 'block';
+      edit_neis.focus();
+      editError.textContent = 'NEIS 개인번호 형식을 다시 확인해 주세요. (영어 1자리 + 숫자 9자리)';
+    } else if(error.message && error.message.includes('not_found_or_locked')){
+      editError.textContent = '수정할 수 없는 상태입니다. 이미 상태가 변경되었을 수 있으니 새로고침 후 다시 확인해 주세요.';
+    } else {
+      editError.textContent = '수정 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
+    }
+    editError.style.display = 'block';
+    return;
+  }
+
+  editingId = null;
+  showCheckView();
+  checkName.value = name;
+  cphone1.value = p1; cphone2.value = p2; cphone3.value = p3;
+  runStatusCheck();
+});
 </script>
 </body>
 </html>
