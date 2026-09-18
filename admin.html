@@ -213,6 +213,7 @@ tbody tr:hover{background:#fafbfd;}
             <th>신청일시</th>
             <th>지역명</th>
             <th>성명</th>
+            <th>성별</th>
             <th>생년월일</th>
             <th>핸드폰</th>
             <th>NEIS 번호</th>
@@ -225,7 +226,7 @@ tbody tr:hover{background:#fafbfd;}
           </tr>
         </thead>
         <tbody id="tbody">
-          <tr class="loading-row"><td colspan="13">불러오는 중...</td></tr>
+          <tr class="loading-row"><td colspan="14">불러오는 중...</td></tr>
         </tbody>
       </table>
     </div>
@@ -333,11 +334,11 @@ $('toggleBtn').addEventListener('click', async ()=>{
 
 /* ---------- 데이터 로드 ---------- */
 async function loadData(){
-  $('tbody').innerHTML = '<tr class="loading-row"><td colspan="13">불러오는 중...</td></tr>';
+  $('tbody').innerHTML = '<tr class="loading-row"><td colspan="14">불러오는 중...</td></tr>';
   const { data, error } = await sb.rpc('admin_list_applications', { p_password: currentPassword });
   if(error){
     console.error(error);
-    $('tbody').innerHTML = '<tr class="empty-row"><td colspan="13">데이터를 불러오지 못했습니다. 새로고침해 주세요.</td></tr>';
+    $('tbody').innerHTML = '<tr class="empty-row"><td colspan="14">데이터를 불러오지 못했습니다. 새로고침해 주세요.</td></tr>';
     return;
   }
   allRows = data || [];
@@ -417,7 +418,7 @@ function renderTable(){
   Array.from(selectedIds).forEach(id=>{ if(!visibleIds.has(id)) selectedIds.delete(id); });
 
   if(rows.length===0){
-    $('tbody').innerHTML = '<tr class="empty-row"><td colspan="13">표시할 신청 내역이 없습니다.</td></tr>';
+    $('tbody').innerHTML = '<tr class="empty-row"><td colspan="14">표시할 신청 내역이 없습니다.</td></tr>';
     renderBulkBar();
     return;
   }
@@ -433,6 +434,7 @@ function renderTable(){
         <td>${createdStr}</td>
         <td>${escapeHtml(r.region)}</td>
         <td>${escapeHtml(r.name)}</td>
+        <td>${escapeHtml(r.gender || '-')}</td>
         <td>${r.birth_date}</td>
         <td>${escapeHtml(r.phone)}</td>
         <td>${escapeHtml(r.neis_id)}</td>
@@ -560,14 +562,14 @@ $('exportBtn').addEventListener('click', ()=>{
   const rows = getFiltered();
   if(rows.length===0){ alert('내보낼 신청 내역이 없습니다.'); return; }
 
-  const headers = ['신청일시','지역명','성명','생년월일','핸드폰','NEIS 개인번호','연수 기수','소속학교명','공립/사립','비고','상태'];
+  const headers = ['신청일시','지역명','성명','성별','생년월일','핸드폰','NEIS 개인번호','연수 기수','소속학교명','공립/사립','비고','상태'];
   const lines = [headers.map(csvEscape).join(',')];
 
   rows.forEach(r=>{
     const created = new Date(r.created_at);
     const createdStr = `${created.getFullYear()}-${String(created.getMonth()+1).padStart(2,'0')}-${String(created.getDate()).padStart(2,'0')} ${String(created.getHours()).padStart(2,'0')}:${String(created.getMinutes()).padStart(2,'0')}`;
     lines.push([
-      createdStr, r.region, r.name, r.birth_date, r.phone, r.neis_id,
+      createdStr, r.region, r.name, r.gender || '', r.birth_date, r.phone, r.neis_id,
       r.course, r.school, r.school_type, r.memo || '', r.status
     ].map(csvEscape).join(','));
   });
