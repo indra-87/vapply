@@ -183,6 +183,13 @@ select{appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns
 .result-entry:first-child{padding-top:0;}
 .result-divider{height:1px; background:var(--line); margin:16px -18px;}
 .result-count{font-size:12.5px; color:var(--muted); font-weight:700; margin-bottom:12px;}
+.status-note{
+  margin-top:14px; padding:12px 13px; border-radius:10px; border:1px solid;
+  background:#fff;
+}
+.status-note .note-title{font-weight:800; font-size:12.5px; margin-bottom:6px;}
+.status-note .note-body{font-size:12px; color:var(--muted); line-height:1.65;}
+.status-note .note-body b{color:var(--ink);}
 .empty-note{
   text-align:center; color:var(--muted); font-size:13.5px;
   padding:18px 6px; display:none;
@@ -639,10 +646,46 @@ async function runStatusCheck(){
         <div class="result-row"><span class="k">지역명</span><span class="v">${row.region}</span></div>
         <div class="result-row"><span class="k">연수 기수</span><span class="v">${row.course}</span></div>
         <div class="result-row"><span class="k">소속학교</span><span class="v">${row.school} (${row.school_type})</span></div>
+        ${statusNoteHtml(row.status, st)}
       </div>
     `;
   }).join('<div class="result-divider"></div>');
   resultBox.style.display='block';
+}
+
+function statusNoteHtml(status, st){
+  if(status === '연수비 입금 대기'){
+    return `
+      <div class="status-note" style="background:${st.bg}; border-color:${st.fg}33;">
+        <div class="note-title" style="color:${st.fg};">💳 입금 안내</div>
+        <div class="note-body">
+          다음 계좌로 연수비를 입금해 주시기 바랍니다.<br>
+          <b>농협 351-1411-8092-13</b> / 예금주: 슬기로운배구생활연구회<br>
+          연수비: (기수별) 130,000원
+        </div>
+      </div>`;
+  }
+  if(status === '연수 확정'){
+    return `
+      <div class="status-note" style="background:${st.bg}; border-color:${st.fg}33;">
+        <div class="note-title" style="color:${st.fg};">✅ 참고 안내</div>
+        <div class="note-body">
+          연수를 취소하실 경우 계획서에 기재된 연락처로 연락해 주세요.<br>
+          연수비 환불 규정: 2027.01.01.까지 취소 시 100% 환불 / 이후 환불 불가
+        </div>
+      </div>`;
+  }
+  if(status === '대기명단 등록'){
+    return `
+      <div class="status-note" style="background:${st.bg}; border-color:${st.fg}33;">
+        <div class="note-title" style="color:${st.fg};">⏳ 대기명단 안내</div>
+        <div class="note-body">
+          현재 연수 신청 정원이 마감되어 대기 명단에 등록된 상태입니다.<br>
+          연수 신청 취소자가 나올 경우 순서대로 연락을 드립니다.
+        </div>
+      </div>`;
+  }
+  return '';
 }
 checkBtn.addEventListener('click', runStatusCheck);
 </script>
