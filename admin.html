@@ -124,7 +124,22 @@ tbody tr.row-selected{background:#f3f6ff;}
 
 .table-wrap{
   background:#fff; border:1px solid var(--line); border-radius:16px; overflow:auto;
+  scrollbar-width:auto; scrollbar-color:#9aa5c2 #eef1f6;
 }
+.table-wrap::-webkit-scrollbar{height:14px;}
+.table-wrap::-webkit-scrollbar-track{background:#eef1f6; border-radius:0 0 16px 16px;}
+.table-wrap::-webkit-scrollbar-thumb{background:#9aa5c2; border-radius:8px; border:3px solid #eef1f6;}
+.table-wrap::-webkit-scrollbar-thumb:hover{background:var(--navy);}
+
+.top-scroll{
+  overflow-x:auto; overflow-y:hidden; height:16px; margin-bottom:6px;
+  scrollbar-width:auto; scrollbar-color:#9aa5c2 #eef1f6;
+}
+.top-scroll::-webkit-scrollbar{height:14px;}
+.top-scroll::-webkit-scrollbar-track{background:#eef1f6; border-radius:8px;}
+.top-scroll::-webkit-scrollbar-thumb{background:#9aa5c2; border-radius:8px; border:3px solid #eef1f6;}
+.top-scroll::-webkit-scrollbar-thumb:hover{background:var(--navy);}
+.top-scroll-inner{height:1px;}
 table{width:100%; border-collapse:collapse; font-size:13.2px; min-width:1080px;}
 thead th{
   text-align:left; padding:12px 14px; background:#f6f8fc; color:var(--muted);
@@ -205,7 +220,8 @@ tbody tr:hover{background:#fafbfd;}
       <button id="bulkClearBtn" class="ghost">선택 해제</button>
     </div>
 
-    <div class="table-wrap">
+    <div class="top-scroll" id="topScroll"><div class="top-scroll-inner" id="topScrollInner"></div></div>
+    <div class="table-wrap" id="tableWrap">
       <table>
         <thead>
           <tr>
@@ -251,6 +267,28 @@ const STATUS_STYLE = {
 };
 
 const $ = (id) => document.getElementById(id);
+
+/* ---------- 테이블 상단 보조 스크롤바 동기화 ---------- */
+const topScroll = $('topScroll'), topScrollInner = $('topScrollInner'), tableWrap = $('tableWrap');
+let syncingScroll = false;
+function syncTopScrollWidth(){
+  const table = tableWrap.querySelector('table');
+  if(!table) return;
+  topScrollInner.style.width = table.scrollWidth + 'px';
+}
+topScroll.addEventListener('scroll', ()=>{
+  if(syncingScroll) return;
+  syncingScroll = true;
+  tableWrap.scrollLeft = topScroll.scrollLeft;
+  syncingScroll = false;
+});
+tableWrap.addEventListener('scroll', ()=>{
+  if(syncingScroll) return;
+  syncingScroll = true;
+  topScroll.scrollLeft = tableWrap.scrollLeft;
+  syncingScroll = false;
+});
+window.addEventListener('resize', syncTopScrollWidth);
 let allRows = [];
 let currentPassword = '';
 
@@ -420,6 +458,7 @@ function renderTable(){
   if(rows.length===0){
     $('tbody').innerHTML = '<tr class="empty-row"><td colspan="14">표시할 신청 내역이 없습니다.</td></tr>';
     renderBulkBar();
+    syncTopScrollWidth();
     return;
   }
   $('tbody').innerHTML = rows.map(r=>{
@@ -462,6 +501,7 @@ function renderTable(){
   });
   syncSelectAllChk();
   renderBulkBar();
+  syncTopScrollWidth();
 }
 
 function syncSelectAllChk(){
