@@ -104,6 +104,24 @@ body{
   font-weight:700; font-size:13px; cursor:pointer; font-family:inherit;
 }
 
+.bulk-bar{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  background:#eef1fb; border:1.5px solid #c7d0ee; border-radius:12px;
+  padding:12px 14px; margin-bottom:14px;
+}
+.bulk-bar #bulkCount{font-size:13px; font-weight:800; color:var(--navy); margin-right:2px;}
+.bulk-bar select{
+  padding:9px 11px; border:1.5px solid var(--line); border-radius:9px; font-size:13px; font-family:inherit; background:#fff;
+}
+.bulk-bar button{
+  border:none; padding:9px 15px; border-radius:9px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit;
+}
+.bulk-bar #bulkApplyBtn{background:var(--navy); color:#fff;}
+.bulk-bar #bulkApplyBtn:disabled{opacity:.5; cursor:default;}
+.bulk-bar button.ghost{background:transparent; color:var(--muted); border:1.5px solid var(--line);}
+.row-chk, #selectAllChk{width:16px; height:16px; cursor:pointer;}
+tbody tr.row-selected{background:#f3f6ff;}
+
 .table-wrap{
   background:#fff; border:1px solid var(--line); border-radius:16px; overflow:auto;
 }
@@ -180,10 +198,18 @@ tbody tr:hover{background:#fafbfd;}
       <button class="refresh" id="exportBtn" style="background:#2f8b57;">CSV 다운로드</button>
     </div>
 
+    <div class="bulk-bar" id="bulkBar" style="display:none;">
+      <span id="bulkCount">0명 선택됨</span>
+      <select id="bulkStatusSelect"></select>
+      <button id="bulkApplyBtn">선택 항목 일괄 변경</button>
+      <button id="bulkClearBtn" class="ghost">선택 해제</button>
+    </div>
+
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
+            <th style="width:34px;"><input type="checkbox" id="selectAllChk"></th>
             <th>신청일시</th>
             <th>지역명</th>
             <th>성명</th>
@@ -199,7 +225,7 @@ tbody tr:hover{background:#fafbfd;}
           </tr>
         </thead>
         <tbody id="tbody">
-          <tr class="loading-row"><td colspan="12">불러오는 중...</td></tr>
+          <tr class="loading-row"><td colspan="13">불러오는 중...</td></tr>
         </tbody>
       </table>
     </div>
@@ -307,11 +333,11 @@ $('toggleBtn').addEventListener('click', async ()=>{
 
 /* ---------- 데이터 로드 ---------- */
 async function loadData(){
-  $('tbody').innerHTML = '<tr class="loading-row"><td colspan="12">불러오는 중...</td></tr>';
+  $('tbody').innerHTML = '<tr class="loading-row"><td colspan="13">불러오는 중...</td></tr>';
   const { data, error } = await sb.rpc('admin_list_applications', { p_password: currentPassword });
   if(error){
     console.error(error);
-    $('tbody').innerHTML = '<tr class="empty-row"><td colspan="12">데이터를 불러오지 못했습니다. 새로고침해 주세요.</td></tr>';
+    $('tbody').innerHTML = '<tr class="empty-row"><td colspan="13">데이터를 불러오지 못했습니다. 새로고침해 주세요.</td></tr>';
     return;
   }
   allRows = data || [];
@@ -367,6 +393,8 @@ function renderStats(){
 }
 
 /* ---------- 테이블 렌더 ---------- */
+const selectedIds = new Set();
+
 function getFiltered(){
   const q = $('searchInput').value.trim().toLowerCase();
   const courseF = $('courseFilter').value;
@@ -384,8 +412,13 @@ function getFiltered(){
 
 function renderTable(){
   const rows = getFiltered();
+  // 필터링돼서 화면에서 사라진 항목의 선택은 해제
+  const visibleIds = new Set(rows.map(r=>r.id));
+  Array.from(selectedIds).forEach(id=>{ if(!visibleIds.has(id)) selectedIds.delete(id); });
+
   if(rows.length===0){
-    $('tbody').innerHTML = '<tr class="empty-row"><td colspan="12">표시할 신청 내역이 없습니다.</td></tr>';
+    $('tbody').innerHTML = '<tr class="empty-row"><td colspan="13">표시할 신청 내역이 없습니다.</td></tr>';
+    renderBulkBar();
     return;
   }
   $('tbody').innerHTML = rows.map(r=>{
@@ -393,8 +426,10 @@ function renderTable(){
     const createdStr = `${created.getFullYear()}.${String(created.getMonth()+1).padStart(2,'0')}.${String(created.getDate()).padStart(2,'0')} ${String(created.getHours()).padStart(2,'0')}:${String(created.getMinutes()).padStart(2,'0')}`;
     const st = STATUS_STYLE[r.status] || {bg:'#eef1f6', fg:'#495166'};
     const statusOptions = STATUS_LIST.map(s=>`<option value="${s}" ${s===r.status?'selected':''}>${s}</option>`).join('');
+    const checked = selectedIds.has(r.id) ? 'checked' : '';
     return `
-      <tr data-id="${r.id}">
+      <tr data-id="${r.id}" class="${checked?'row-selected':''}">
+        <td><input type="checkbox" class="row-chk" data-id="${r.id}" ${checked}></td>
         <td>${createdStr}</td>
         <td>${escapeHtml(r.region)}</td>
         <td>${escapeHtml(r.name)}</td>
@@ -414,7 +449,34 @@ function renderTable(){
       </tr>
     `;
   }).join('');
+
+  document.querySelectorAll('.row-chk').forEach(chk=>{
+    chk.addEventListener('change', ()=>{
+      const id = Number(chk.dataset.id);
+      if(chk.checked) selectedIds.add(id); else selectedIds.delete(id);
+      chk.closest('tr').classList.toggle('row-selected', chk.checked);
+      renderBulkBar();
+    });
+  });
+  syncSelectAllChk();
+  renderBulkBar();
 }
+
+function syncSelectAllChk(){
+  const rows = getFiltered();
+  const allChecked = rows.length > 0 && rows.every(r=>selectedIds.has(r.id));
+  $('selectAllChk').checked = allChecked;
+}
+
+$('selectAllChk').addEventListener('change', (e)=>{
+  const rows = getFiltered();
+  if(e.target.checked){
+    rows.forEach(r=>selectedIds.add(r.id));
+  } else {
+    rows.forEach(r=>selectedIds.delete(r.id));
+  }
+  renderTable();
+});
 
 function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -423,6 +485,54 @@ function escapeHtml(str){
 ['searchInput','courseFilter','statusFilter'].forEach(id=>{
   $(id).addEventListener('input', renderTable);
   $(id).addEventListener('change', renderTable);
+});
+
+/* ---------- 일괄 상태 변경 ---------- */
+STATUS_LIST.forEach(s=>{
+  const opt = document.createElement('option');
+  opt.value = s; opt.textContent = s;
+  $('bulkStatusSelect').appendChild(opt);
+});
+
+function renderBulkBar(){
+  const n = selectedIds.size;
+  $('bulkBar').style.display = n > 0 ? 'flex' : 'none';
+  $('bulkCount').textContent = `${n}명 선택됨`;
+  $('bulkApplyBtn').disabled = n === 0;
+}
+
+$('bulkClearBtn').addEventListener('click', ()=>{
+  selectedIds.clear();
+  renderTable();
+});
+
+$('bulkApplyBtn').addEventListener('click', async ()=>{
+  const ids = Array.from(selectedIds);
+  if(ids.length === 0) return;
+  const status = $('bulkStatusSelect').value;
+  if(!confirm(`선택한 ${ids.length}명의 상태를 "${status}"(으)로 변경하시겠습니까?`)) return;
+
+  $('bulkApplyBtn').disabled = true;
+  $('bulkApplyBtn').textContent = '처리 중...';
+  const { data, error } = await sb.rpc('admin_bulk_update_status', {
+    p_password: currentPassword, p_ids: ids, p_status: status
+  });
+  $('bulkApplyBtn').textContent = '선택 항목 일괄 변경';
+
+  if(error){
+    console.error(error);
+    alert('일괄 변경에 실패했습니다.');
+    renderBulkBar();
+    return;
+  }
+
+  ids.forEach(id=>{
+    const row = allRows.find(r=>r.id===id);
+    if(row) row.status = status;
+  });
+  selectedIds.clear();
+  renderStats();
+  renderTable();
 });
 
 /* ---------- 상태 변경 ---------- */
@@ -486,6 +596,7 @@ async function deleteRow(id, name){
     return;
   }
   allRows = allRows.filter(r=>r.id!==id);
+  selectedIds.delete(id);
   renderStats();
   renderTable();
 }
