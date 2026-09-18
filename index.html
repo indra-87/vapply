@@ -128,6 +128,9 @@ input:focus, select:focus{
 }
 select{appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="9"><path d="M1 1l6 6 6-6" stroke="%235b6478" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'); background-repeat:no-repeat; background-position:right 14px center; padding-right:36px;}
 .phone-row{display:flex; align-items:center; gap:8px;}
+.birth-row{display:flex; gap:8px;}
+.birth-row select{flex:1; min-width:0;}
+.birth-row select:invalid{color:#a7afc0;}
 .phone-row input{text-align:center;}
 .phone-row span{color:var(--muted); font-weight:600;}
 .radio-row{display:flex; gap:10px;}
@@ -177,6 +180,9 @@ select{appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns
 .result-row:last-child{border-bottom:none;}
 .result-row .k{color:var(--muted); font-weight:600; flex:none;}
 .result-row .v{font-weight:700; text-align:right;}
+.result-entry:first-child{padding-top:0;}
+.result-divider{height:1px; background:var(--line); margin:16px -18px;}
+.result-count{font-size:12.5px; color:var(--muted); font-weight:700; margin-bottom:12px;}
 .empty-note{
   text-align:center; color:var(--muted); font-size:13.5px;
   padding:18px 6px; display:none;
@@ -262,8 +268,12 @@ select{appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns
       <label for="applicantName">성명</label>
       <input type="text" id="applicantName" name="name" required>
 
-      <label for="birth">생년월일</label>
-      <input type="date" id="birth" name="birth" required>
+      <label>생년월일</label>
+      <div class="birth-row">
+        <select id="birthYear" required><option value="" selected disabled>년도</option></select>
+        <select id="birthMonth" required><option value="" selected disabled>월</option></select>
+        <select id="birthDay" required><option value="" selected disabled>일</option></select>
+      </div>
 
       <label>핸드폰 번호</label>
       <div class="phone-row">
@@ -358,7 +368,8 @@ const STATUS_STYLE = {
 const $ = (id) => document.getElementById(id);
 const applyCard = $('applyCard'), checkCard = $('checkCard');
 const applyForm = $('applyForm');
-const regionEl = $('region'), neisEl = $('neis'), neisErr = $('neisErr'), nameEl = $('applicantName'), birthEl = $('birth');
+const regionEl = $('region'), neisEl = $('neis'), neisErr = $('neisErr'), nameEl = $('applicantName');
+const birthYearEl = $('birthYear'), birthMonthEl = $('birthMonth'), birthDayEl = $('birthDay');
 const NEIS_PATTERN = /^[A-Za-z][0-9]{9}$/;
 
 // 전각(full-width) 문자로 입력된 경우 반각으로 변환 (한/영 입력기 전환 중 실수로 전각이 입력되는 경우 대비)
@@ -421,6 +432,40 @@ function wirePhoneAutoNext(p1,p2,p3){
 wirePhoneAutoNext(phone1,phone2,phone3);
 wirePhoneAutoNext(cphone1,cphone2,cphone3);
 
+/* ---------- 생년월일 년/월/일 select 초기화 ---------- */
+(function initBirthSelects(){
+  const thisYear = new Date().getFullYear();
+  for(let y = thisYear; y >= 1950; y--){
+    const opt = document.createElement('option');
+    opt.value = y; opt.textContent = `${y}년`;
+    birthYearEl.appendChild(opt);
+  }
+  for(let m = 1; m <= 12; m++){
+    const opt = document.createElement('option');
+    opt.value = m; opt.textContent = `${m}월`;
+    birthMonthEl.appendChild(opt);
+  }
+  refreshBirthDays();
+})();
+
+function refreshBirthDays(){
+  const y = Number(birthYearEl.value) || null;
+  const m = Number(birthMonthEl.value) || null;
+  const daysInMonth = (y && m) ? new Date(y, m, 0).getDate() : 31;
+  const prevSelected = birthDayEl.value;
+  birthDayEl.innerHTML = '<option value="" selected disabled>일</option>';
+  for(let d = 1; d <= daysInMonth; d++){
+    const opt = document.createElement('option');
+    opt.value = d; opt.textContent = `${d}일`;
+    birthDayEl.appendChild(opt);
+  }
+  if(prevSelected && Number(prevSelected) <= daysInMonth){
+    birthDayEl.value = prevSelected;
+  }
+}
+birthYearEl.addEventListener('change', refreshBirthDays);
+birthMonthEl.addEventListener('change', refreshBirthDays);
+
 /* ---------- 화면 전환 ---------- */
 function showCheckView(){
   applyCard.style.display='none';
@@ -474,7 +519,8 @@ applyForm.addEventListener('submit', async (e)=>{
   const region = regionEl.value.trim();
   const neis = normalizeNeis(neisEl.value);
   const name = nameEl.value.trim();
-  const birth = birthEl.value;
+  const by = birthYearEl.value, bm = birthMonthEl.value, bd = birthDayEl.value;
+  const birth = (by && bm && bd) ? `${by}-${String(bm).padStart(2,'0')}-${String(bd).padStart(2,'0')}` : '';
   const p1=phone1.value.trim(), p2=phone2.value.trim(), p3=phone3.value.trim();
   const course = courseEl.value;
   const school = schoolEl.value.trim();
@@ -525,6 +571,7 @@ applyForm.addEventListener('submit', async (e)=>{
   lastSubmitted = { name, phone };
 
   applyForm.reset();
+  refreshBirthDays();
   neisEl.classList.remove('invalid');
   neisErr.style.display = 'none';
   document.querySelectorAll('#schoolTypeRow .radio-opt').forEach(o=>o.classList.remove('active'));
@@ -579,18 +626,22 @@ async function runStatusCheck(){
     return;
   }
 
-  const row = data[0];
-  const st = STATUS_STYLE[row.status] || {bg:'#eef1f6', fg:'#495166'};
-  const created = new Date(row.created_at);
-  const createdStr = `${created.getFullYear()}.${String(created.getMonth()+1).padStart(2,'0')}.${String(created.getDate()).padStart(2,'0')}`;
-
-  resultBox.innerHTML = `
-    <span class="status-pill" style="background:${st.bg}; color:${st.fg};">${row.status}</span>
-    <div class="result-row"><span class="k">신청일</span><span class="v">${createdStr}</span></div>
-    <div class="result-row"><span class="k">지역명</span><span class="v">${row.region}</span></div>
-    <div class="result-row"><span class="k">연수 기수</span><span class="v">${row.course}</span></div>
-    <div class="result-row"><span class="k">소속학교</span><span class="v">${row.school} (${row.school_type})</span></div>
-  `;
+  resultBox.innerHTML =
+    (data.length > 1 ? `<div class="result-count">총 ${data.length}건의 신청 내역이 있습니다.</div>` : '') +
+    data.map(row => {
+    const st = STATUS_STYLE[row.status] || {bg:'#eef1f6', fg:'#495166'};
+    const created = new Date(row.created_at);
+    const createdStr = `${created.getFullYear()}.${String(created.getMonth()+1).padStart(2,'0')}.${String(created.getDate()).padStart(2,'0')}`;
+    return `
+      <div class="result-entry">
+        <span class="status-pill" style="background:${st.bg}; color:${st.fg};">${row.status}</span>
+        <div class="result-row"><span class="k">신청일</span><span class="v">${createdStr}</span></div>
+        <div class="result-row"><span class="k">지역명</span><span class="v">${row.region}</span></div>
+        <div class="result-row"><span class="k">연수 기수</span><span class="v">${row.course}</span></div>
+        <div class="result-row"><span class="k">소속학교</span><span class="v">${row.school} (${row.school_type})</span></div>
+      </div>
+    `;
+  }).join('<div class="result-divider"></div>');
   resultBox.style.display='block';
 }
 checkBtn.addEventListener('click', runStatusCheck);
