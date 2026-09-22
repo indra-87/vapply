@@ -156,6 +156,16 @@ select{appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns
   border:1.5px solid var(--line);
 }
 .btn-secondary:hover{border-color:var(--navy);}
+.btn-edit{
+  background:var(--gold); color:var(--gold-ink); margin-top:14px;
+  box-shadow:0 4px 12px rgba(226,163,57,.35);
+}
+.btn-edit:hover{background:#d5952e;}
+.btn-cancel-app{
+  background:#fff; color:var(--danger); border:1.5px solid var(--danger); margin-top:10px;
+}
+.btn-cancel-app:hover{background:#fdf1f1;}
+.entry-actions{display:flex; flex-direction:column; gap:0;}
 
 .error-msg{
   background:#fdecec; color:var(--danger); border:1px solid #f6c9c9;
@@ -767,8 +777,11 @@ async function runStatusCheck(){
     const created = new Date(row.created_at);
     const createdStr = `${created.getFullYear()}.${String(created.getMonth()+1).padStart(2,'0')}.${String(created.getDate()).padStart(2,'0')}`;
     const birthStr = row.birth_date ? String(row.birth_date).replace(/-/g,'.') : '-';
-    const editBtn = row.status === '신청확인중'
-      ? `<button type="button" class="btn btn-secondary edit-trigger-btn" data-id="${row.id}" style="margin-top:14px;">신청서 수정하기</button>`
+    const actionBtns = row.status === '신청확인중'
+      ? `<div class="entry-actions">
+          <button type="button" class="btn btn-edit edit-trigger-btn" data-id="${row.id}">신청서 수정하기</button>
+          <button type="button" class="btn btn-cancel-app cancel-trigger-btn" data-id="${row.id}">신청 취소하기</button>
+        </div>`
       : '';
     return `
       <div class="result-entry">
@@ -781,7 +794,7 @@ async function runStatusCheck(){
         <div class="result-row"><span class="k">NEIS 개인번호</span><span class="v">${row.neis_id || '-'}</span></div>
         <div class="result-row"><span class="k">생년월일</span><span class="v">${birthStr}</span></div>
         ${statusNoteHtml(row.status, st)}
-        ${editBtn}
+        ${actionBtns}
       </div>
     `;
   }).join('<div class="result-divider"></div>');
@@ -789,6 +802,9 @@ async function runStatusCheck(){
 
   document.querySelectorAll('.edit-trigger-btn').forEach(btn=>{
     btn.addEventListener('click', ()=> openEditForm(Number(btn.dataset.id)));
+  });
+  document.querySelectorAll('.cancel-trigger-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> cancelOwnApplication(Number(btn.dataset.id), btn));
   });
 }
 
@@ -962,6 +978,34 @@ editForm.addEventListener('submit', async (e)=>{
   cphone1.value = p1; cphone2.value = p2; cphone3.value = p3;
   runStatusCheck();
 });
+
+/* ---------- 신청 취소하기 ---------- */
+async function cancelOwnApplication(id, btnEl){
+  if(!confirm('정말 이 연수 신청을 취소하시겠습니까?\n취소 후에는 신청서 수정이 불가능합니다.')) return;
+
+  btnEl.disabled = true;
+  btnEl.textContent = '취소 처리 중...';
+
+  const { error } = await sb.rpc('cancel_own_application', {
+    p_id: id,
+    p_orig_name: lastCheckOrigName,
+    p_orig_phone: lastCheckOrigPhone,
+  });
+
+  if(error){
+    console.error(error);
+    btnEl.disabled = false;
+    btnEl.textContent = '신청 취소하기';
+    if(error.message && error.message.includes('not_found_or_locked')){
+      alert('취소할 수 없는 상태입니다. 이미 상태가 변경되었을 수 있으니 새로고침 후 다시 확인해 주세요.');
+    } else {
+      alert('취소 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+    }
+    return;
+  }
+
+  runStatusCheck();
+}
 </script>
 </body>
 </html>
