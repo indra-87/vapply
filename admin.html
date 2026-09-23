@@ -425,20 +425,27 @@ function renderStats(){
   STATUS_LIST.forEach(s=> counts[s]=0);
   allRows.forEach(r=> counts[r.status] = (counts[r.status]||0)+1);
 
-  const courseCounts = {};
+  const COURSE_CAPACITY = {'1기':30, '2기':20};
+  const courseStats = {}; // course -> {active, waitlist}
   allRows.forEach(r=>{
-    // 취소 건은 정원 카운트에서 제외하고 집계 (인원 파악용)
     if(r.status === '연수 신청 취소') return;
-    courseCounts[r.course] = (courseCounts[r.course]||0)+1;
+    if(!courseStats[r.course]) courseStats[r.course] = {active:0, waitlist:0};
+    if(r.status === '대기명단 등록') courseStats[r.course].waitlist++;
+    else courseStats[r.course].active++;
   });
 
   const cards = [`<div class="stat"><div class="n">${total}</div><div class="l">전체 신청</div></div>`]
     .concat(STATUS_LIST.map(s=>`<div class="stat"><div class="n">${counts[s]}</div><div class="l">${s}</div></div>`));
   $('statsRow').innerHTML = cards.join('');
 
-  const courseCards = Object.entries(courseCounts).map(([course,n])=>
-    `<div class="stat"><div class="n">${n}</div><div class="l">${course.replace(/\s*\(.*\)$/,'')} (취소 제외)</div></div>`
-  );
+  const courseCards = Object.entries(courseStats).map(([course, s])=>{
+    const capKey = course.startsWith('1기') ? '1기' : course.startsWith('2기') ? '2기' : null;
+    const cap = capKey ? COURSE_CAPACITY[capKey] : null;
+    const label = course.replace(/\s*\(.*\)$/,'');
+    const capBadge = cap ? `<span style="font-size:13px; color:var(--muted); font-weight:700;"> / 정원 ${cap}명</span>` : '';
+    const waitText = s.waitlist > 0 ? ` · 대기 ${s.waitlist}명` : '';
+    return `<div class="stat"><div class="n">${s.active}${capBadge}</div><div class="l">${label}${waitText}</div></div>`;
+  });
   $('courseStatsRow').innerHTML = courseCards.join('') || '<div class="stat"><div class="l">신청 데이터 없음</div></div>';
 }
 
