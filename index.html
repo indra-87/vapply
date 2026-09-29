@@ -308,10 +308,13 @@ select{appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns
 .review-entry .board-meta{margin-bottom:10px;}
 .review-entry .review-body{font-size:13.5px; line-height:1.7; color:#333; white-space:pre-wrap; word-break:break-word;}
 .delete-link{
-  margin-top:12px; background:none; border:none; padding:0; cursor:pointer; font-family:inherit;
-  font-size:11.5px; color:#a7afc0; font-weight:700; text-decoration:underline;
+  margin-top:12px; display:inline-flex; align-items:center; gap:5px;
+  background:#fff; border:1.5px solid #f0c7c7; color:var(--danger);
+  padding:7px 13px; border-radius:9px; cursor:pointer; font-family:inherit;
+  font-size:12px; font-weight:700;
 }
-.delete-link:hover{color:var(--danger);}
+.delete-link::before{content:"🗑";font-size:11px;}
+.delete-link:hover{background:#fdf1f1; border-color:var(--danger);}
 
 /* 글쓰기 폼 */
 textarea{
