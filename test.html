@@ -238,20 +238,19 @@ select{appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns
 }
 .foot-link{color:var(--navy); font-weight:700; text-decoration:underline;}
 
-/* 상단 신청서/게시판 탭 네비게이션 */
-.top-nav-wrap{
-  background:var(--navy-2); padding:0 20px;
-  display:flex; justify-content:center;
-}
+/* 상단 신청서/게시판 탭 네비게이션 (hero 내부에 위치) */
 .top-nav{
-  max-width:560px; width:100%; display:flex; gap:4px;
+  max-width:400px; width:100%; margin:24px auto 0;
+  display:flex; gap:4px;
+  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16);
+  border-radius:12px; padding:4px;
+  position:relative; z-index:2;
 }
 .top-nav-btn{
-  flex:1; background:transparent; border:none; color:#c6cfe3;
-  padding:13px 10px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit;
-  border-bottom:3px solid transparent;
+  flex:1; background:transparent; border:none; color:#c6cfe3; border-radius:9px;
+  padding:10px 10px; font-size:13.5px; font-weight:700; cursor:pointer; font-family:inherit;
 }
-.top-nav-btn.active{color:#fff; border-bottom-color:var(--gold);}
+.top-nav-btn.active{color:var(--navy); background:#fff;}
 
 /* 게시판 탭 */
 .board-tabs{display:flex; gap:8px; margin-bottom:16px;}
@@ -308,6 +307,11 @@ select{appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns
 .review-entry h3{font-size:15.5px; font-weight:800; margin:0 0 4px; color:var(--ink);}
 .review-entry .board-meta{margin-bottom:10px;}
 .review-entry .review-body{font-size:13.5px; line-height:1.7; color:#333; white-space:pre-wrap; word-break:break-word;}
+.delete-link{
+  margin-top:12px; background:none; border:none; padding:0; cursor:pointer; font-family:inherit;
+  font-size:11.5px; color:#a7afc0; font-weight:700; text-decoration:underline;
+}
+.delete-link:hover{color:var(--danger);}
 
 /* 글쓰기 폼 */
 textarea{
@@ -357,9 +361,7 @@ textarea:focus{outline:none; border-color:var(--navy); box-shadow:0 0 0 3px rgba
   <div class="hero-badge">🏐 2026학년도 하반기 특수분야 직무연수</div>
   <h1>슬기로운 배구생활<br>연수 신청서</h1>
   <p>배구를 즐겁게, 안전하게, 제대로 — 기초부터 실전까지</p>
-</div>
 
-<div class="top-nav-wrap">
   <div class="top-nav">
     <button type="button" class="top-nav-btn active" id="navApplyBtn">신청서 작성</button>
     <button type="button" class="top-nav-btn" id="navBoardBtn">게시판</button>
@@ -566,8 +568,8 @@ textarea:focus{outline:none; border-color:var(--navy); box-shadow:0 0 0 3px rgba
 
     <div class="board-toolbar">
       <div id="instructorArea">
-        <button type="button" class="btn-chip" id="instructorModeBtn">🔑 강사 모드</button>
-        <span id="instructorActiveTag" style="display:none;">강사 모드 ON <button type="button" id="instructorLogoutBtn">해제</button></span>
+        <button type="button" class="btn-chip" id="instructorModeBtn">🔑 관리자 모드</button>
+        <span id="instructorActiveTag" style="display:none;">관리자 모드 ON <button type="button" id="instructorLogoutBtn">해제</button></span>
       </div>
       <button type="button" class="btn-chip primary" id="boardWriteBtn">문의하기</button>
     </div>
@@ -588,16 +590,17 @@ textarea:focus{outline:none; border-color:var(--navy); box-shadow:0 0 0 3px rgba
       <label for="bw_content">내용</label>
       <textarea id="bw_content" rows="7" required></textarea>
 
-      <div id="bw_privateArea" style="margin-top:14px;">
+      <div id="bw_privateCheckArea" style="margin-top:14px;">
         <label class="checkbox-row">
           <input type="checkbox" id="bw_isPrivate">
           <span>비밀글로 문의하기 (다른 연수생에게 공개되지 않아요)</span>
         </label>
-        <div id="bw_passwordArea" style="display:none; margin-top:10px;">
-          <label for="bw_password">비밀글 비밀번호</label>
-          <div class="hint">글을 다시 확인할 때 필요해요. 잊지 않게 기억해 주세요.</div>
-          <input type="password" id="bw_password" placeholder="숫자/영문 4자리 이상">
-        </div>
+      </div>
+
+      <div id="bw_passwordArea" style="margin-top:12px;">
+        <label for="bw_password" id="bw_passwordLabel">삭제 비밀번호 (선택)</label>
+        <div class="hint" id="bw_passwordHint">설정해 두면 나중에 본인이 이 글을 직접 삭제할 수 있어요.</div>
+        <input type="password" id="bw_password" placeholder="숫자/영문 4자리 이상">
       </div>
 
       <div class="error-msg" id="boardWriteError"></div>
@@ -1240,11 +1243,30 @@ const boardWriteBtn = $('boardWriteBtn');
 const instructorModeBtn = $('instructorModeBtn'), instructorActiveTag = $('instructorActiveTag'), instructorLogoutBtn = $('instructorLogoutBtn');
 const boardWriteForm = $('boardWriteForm'), boardWriteTitle = $('boardWriteTitle'), boardWriteError = $('boardWriteError'), boardWriteSubmitBtn = $('boardWriteSubmitBtn'), boardWriteCancelBtn = $('boardWriteCancelBtn');
 const bw_author = $('bw_author'), bw_title = $('bw_title'), bw_content = $('bw_content');
-const bw_privateArea = $('bw_privateArea'), bw_isPrivate = $('bw_isPrivate'), bw_passwordArea = $('bw_passwordArea'), bw_password = $('bw_password');
+const bw_privateCheckArea = $('bw_privateCheckArea'), bw_isPrivate = $('bw_isPrivate');
+const bw_passwordArea = $('bw_passwordArea'), bw_passwordLabel = $('bw_passwordLabel'), bw_passwordHint = $('bw_passwordHint'), bw_password = $('bw_password');
 const boardDetailArea = $('boardDetailArea'), boardDetailBackBtn = $('boardDetailBackBtn');
 const footBoardLink = $('footBoardLink');
 
 const boardState = { category: '공지사항', instructorPassword: null };
+
+/* ---------- 내가 쓴 글 소유 토큰 (브라우저에 저장, 비밀번호 없이 본인 글 식별용) ---------- */
+const OWNER_TOKENS_KEY = 'sgbv_board_owner_tokens';
+function getOwnerTokens(){
+  try {
+    return JSON.parse(localStorage.getItem(OWNER_TOKENS_KEY) || '{}');
+  } catch(e){ return {}; }
+}
+function saveOwnerToken(postId, token){
+  try {
+    const map = getOwnerTokens();
+    map[postId] = token;
+    localStorage.setItem(OWNER_TOKENS_KEY, JSON.stringify(map));
+  } catch(e){ /* localStorage 사용 불가 환경이면 조용히 무시 */ }
+}
+function getOwnerToken(postId){
+  return getOwnerTokens()[postId] || null;
+}
 
 function fmtDate(iso){
   const d = new Date(iso);
@@ -1277,9 +1299,9 @@ navApplyBtn.addEventListener('click', showApplyMode);
 navBoardBtn.addEventListener('click', showBoardMode);
 footBoardLink.addEventListener('click', (e)=>{ e.preventDefault(); showBoardMode(); });
 
-/* ---------- 강사 모드 ---------- */
+/* ---------- 관리자 모드 ---------- */
 instructorModeBtn.addEventListener('click', async ()=>{
-  const pw = prompt('강사 비밀번호를 입력해 주세요.');
+  const pw = prompt('관리자 비밀번호를 입력해 주세요.');
   if(pw === null) return;
   const { data, error } = await sb.rpc('verify_instructor_password', { p_password: pw });
   if(error || !data){
@@ -1322,6 +1344,36 @@ function updateWriteButtonForTab(){
   }
 }
 
+/* ---------- 게시글 삭제 (공용) ---------- */
+async function attemptDeletePost(id, onSuccess){
+  if(!confirm('이 글을 삭제하시겠습니까? 삭제 후에는 되돌릴 수 없습니다.')) return;
+
+  const params = { p_id: id };
+  if(boardState.instructorPassword){
+    params.p_admin_password = boardState.instructorPassword;
+  } else {
+    const token = getOwnerToken(id);
+    if(token){
+      params.p_owner_token = token;
+    } else {
+      const pw = prompt('이 글을 삭제하려면 작성 시 설정한 비밀번호를 입력해 주세요.\n(비밀번호를 설정하지 않은 글은 작성자 본인이라도 이 브라우저가 아니면 삭제할 수 없습니다.)');
+      if(pw === null) return;
+      params.p_password = pw;
+    }
+  }
+
+  const { data, error } = await sb.rpc('delete_board_post', params);
+  if(error || !data){
+    console.error(error);
+    alert('삭제할 수 없습니다. 비밀번호가 올바르지 않거나 권한이 없습니다.');
+    return;
+  }
+  onSuccess && onSuccess();
+}
+function canShowQuickDelete(postId){
+  return !!(boardState.instructorPassword || getOwnerToken(postId));
+}
+
 /* ---------- 목록 불러오기 ---------- */
 async function loadBoardList(){
   boardListArea.innerHTML = '<div class="board-empty">불러오는 중...</div>';
@@ -1342,8 +1394,12 @@ async function loadBoardList(){
         <h3>${escapeHtml(row.title)}</h3>
         <div class="board-meta">${escapeHtml(row.author_name)} · ${fmtDate(row.created_at)}</div>
         <div class="review-body">${escapeHtml(row.content)}</div>
+        <button type="button" class="delete-link" data-id="${row.id}">삭제${canShowQuickDelete(row.id) ? '' : ' (비밀번호 필요)'}</button>
       </div>
     `).join('');
+    boardListArea.querySelectorAll('.delete-link').forEach(btn=>{
+      btn.addEventListener('click', ()=> attemptDeletePost(Number(btn.dataset.id), loadBoardList));
+    });
     return;
   }
 
@@ -1366,21 +1422,30 @@ async function loadBoardList(){
 }
 
 /* ---------- 글쓰기 ---------- */
+function resetPasswordAreaLabel(){
+  bw_passwordLabel.textContent = '삭제 비밀번호 (선택)';
+  bw_passwordHint.textContent = '설정해 두면 나중에 본인이 이 글을 직접 삭제할 수 있어요.';
+  bw_password.placeholder = '숫자/영문 4자리 이상 (선택)';
+}
+
 boardWriteBtn.addEventListener('click', ()=>{
   boardWriteError.style.display = 'none';
   boardWriteForm.reset();
-  bw_passwordArea.style.display = 'none';
+  resetPasswordAreaLabel();
 
   if(boardState.category === '공지사항'){
     boardWriteTitle.textContent = '공지 작성';
-    bw_privateArea.style.display = 'none';
-    bw_author.value = '강사';
+    bw_privateCheckArea.style.display = 'none';
+    bw_passwordArea.style.display = 'none';
+    bw_author.value = '관리자';
   } else if(boardState.category === '문의사항'){
     boardWriteTitle.textContent = '문의하기';
-    bw_privateArea.style.display = 'block';
+    bw_privateCheckArea.style.display = 'block';
+    bw_passwordArea.style.display = 'block';
   } else {
     boardWriteTitle.textContent = '후기 작성';
-    bw_privateArea.style.display = 'none';
+    bw_privateCheckArea.style.display = 'none';
+    bw_passwordArea.style.display = 'block';
   }
 
   boardListCard.style.display = 'none';
@@ -1392,7 +1457,13 @@ boardWriteCancelBtn.addEventListener('click', ()=>{
   boardListCard.style.display = 'block';
 });
 bw_isPrivate.addEventListener('change', ()=>{
-  bw_passwordArea.style.display = bw_isPrivate.checked ? 'block' : 'none';
+  if(bw_isPrivate.checked){
+    bw_passwordLabel.textContent = '비밀글 비밀번호 (필수)';
+    bw_passwordHint.textContent = '글을 다시 확인/삭제할 때 필요해요. 잊지 않게 기억해 주세요.';
+    bw_password.placeholder = '숫자/영문 4자리 이상';
+  } else {
+    resetPasswordAreaLabel();
+  }
 });
 
 boardWriteForm.addEventListener('submit', async (e)=>{
@@ -1416,7 +1487,7 @@ boardWriteForm.addEventListener('submit', async (e)=>{
 
   if(boardState.category === '공지사항'){
     if(!boardState.instructorPassword){
-      boardWriteError.textContent = '강사 모드에서만 공지를 작성할 수 있습니다.';
+      boardWriteError.textContent = '관리자 모드에서만 공지를 작성할 수 있습니다.';
       boardWriteError.style.display = 'block';
       boardWriteSubmitBtn.disabled = false;
       boardWriteSubmitBtn.textContent = '등록하기';
@@ -1429,18 +1500,22 @@ boardWriteForm.addEventListener('submit', async (e)=>{
     rpcError = error;
   } else {
     const isPrivate = boardState.category === '문의사항' && bw_isPrivate.checked;
-    if(isPrivate && !bw_password.value.trim()){
+    const pwValue = bw_password.value.trim();
+    if(isPrivate && !pwValue){
       boardWriteError.textContent = '비밀글은 비밀번호를 입력해야 합니다.';
       boardWriteError.style.display = 'block';
       boardWriteSubmitBtn.disabled = false;
       boardWriteSubmitBtn.textContent = '등록하기';
       return;
     }
-    const { error } = await sb.rpc('create_board_post', {
+    const { data, error } = await sb.rpc('create_board_post', {
       p_category: boardState.category, p_title: title, p_content: content, p_author_name: author,
-      p_is_private: isPrivate, p_password: isPrivate ? bw_password.value.trim() : null,
+      p_is_private: isPrivate, p_password: pwValue ? pwValue : null,
     });
     rpcError = error;
+    if(!error && data && data[0]){
+      saveOwnerToken(data[0].id, data[0].owner_token);
+    }
   }
 
   boardWriteSubmitBtn.disabled = false;
@@ -1516,7 +1591,7 @@ async function renderPostDetail(post, currentPassword){
     const list = (!cErr && comments) ? comments : [];
     commentsHtml = `
       <div class="comments-section">
-        <h4>강사 답변 ${list.length > 0 ? `(${list.length})` : ''}</h4>
+        <h4>관리자 답변 ${list.length > 0 ? `(${list.length})` : ''}</h4>
         ${list.length === 0 ? '<div class="no-comment">아직 답변이 등록되지 않았습니다.</div>' : ''}
         ${list.map(c => `
           <div class="comment-item">
@@ -1535,6 +1610,10 @@ async function renderPostDetail(post, currentPassword){
   }
 
   const lockNote = (post.category === '문의사항' && post.is_private) ? '<span class="board-lock">🔒 비밀글</span> ' : '';
+  const showDelete = post.category !== '공지사항' || boardState.instructorPassword;
+  const deleteBtnHtml = showDelete
+    ? `<button type="button" class="delete-link" id="postDeleteBtn">삭제${canShowQuickDelete(post.id) ? '' : ' (비밀번호 필요)'}</button>`
+    : '';
 
   boardDetailArea.innerHTML = `
     <div class="post-detail-head">
@@ -1542,8 +1621,18 @@ async function renderPostDetail(post, currentPassword){
       <div class="board-meta">${escapeHtml(post.author_name)} · ${fmtDate(post.created_at)}</div>
     </div>
     <div class="post-detail-body">${escapeHtml(post.content)}</div>
+    ${deleteBtnHtml}
     ${commentsHtml}
   `;
+
+  const deleteBtn = $('postDeleteBtn');
+  if(deleteBtn){
+    deleteBtn.addEventListener('click', ()=> attemptDeletePost(post.id, ()=>{
+      boardDetailCard.style.display = 'none';
+      boardListCard.style.display = 'block';
+      loadBoardList();
+    }));
+  }
 
   const replyBtn = $('replySubmitBtn');
   if(replyBtn){
@@ -1555,7 +1644,7 @@ async function renderPostDetail(post, currentPassword){
       const { error } = await sb.rpc('add_instructor_comment', {
         p_post_id: post.id,
         p_instructor_password: boardState.instructorPassword,
-        p_author_name: '강사',
+        p_author_name: '관리자',
         p_content: content,
       });
       replyBtn.disabled = false;
