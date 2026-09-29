@@ -264,7 +264,7 @@ tbody tr:hover{background:#fafbfd;}
         <thead>
           <tr>
             <th style="width:34px;"><input type="checkbox" id="selectAllChk"></th>
-            <th>신청일시</th>
+            <th>상태</th>
             <th>지역명</th>
             <th>성명</th>
             <th>성별</th>
@@ -275,7 +275,7 @@ tbody tr:hover{background:#fafbfd;}
             <th>소속학교</th>
             <th>구분</th>
             <th>비고</th>
-            <th>상태</th>
+            <th>신청일시</th>
             <th>삭제</th>
           </tr>
         </thead>
@@ -547,7 +547,11 @@ function renderTable(){
     return `
       <tr data-id="${r.id}" class="${checked?'row-selected':''}">
         <td><input type="checkbox" class="row-chk" data-id="${r.id}" ${checked}></td>
-        <td>${createdStr}</td>
+        <td>
+          <select class="status-select" style="background:${st.bg}; color:${st.fg};" onchange="updateStatus(${r.id}, this.value)">
+            ${statusOptions}
+          </select>
+        </td>
         <td>${escapeHtml(r.region)}</td>
         <td>${escapeHtml(r.name)}</td>
         <td>${escapeHtml(r.gender || '-')}</td>
@@ -562,11 +566,7 @@ function renderTable(){
             ? `<button type="button" class="memo-view-btn" data-id="${r.id}">보기</button><div class="memo-text" id="memo-${r.id}">${escapeHtml(r.memo)}</div>`
             : '-'
         }</td>
-        <td>
-          <select class="status-select" style="background:${st.bg}; color:${st.fg};" onchange="updateStatus(${r.id}, this.value)">
-            ${statusOptions}
-          </select>
-        </td>
+        <td>${createdStr}</td>
         <td><button class="del-btn" onclick="deleteRow(${r.id}, '${escapeHtml(r.name).replace(/'/g,"\\'")}')">삭제</button></td>
       </tr>
     `;
