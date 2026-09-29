@@ -236,6 +236,123 @@ select{appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns
   text-align:center; font-size:12px; color:var(--muted);
   margin-top:22px; line-height:1.6;
 }
+.foot-link{color:var(--navy); font-weight:700; text-decoration:underline;}
+
+/* 상단 신청서/게시판 탭 네비게이션 (hero 내부에 위치) */
+.top-nav{
+  max-width:400px; width:100%; margin:24px auto 0;
+  display:flex; gap:4px;
+  background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.16);
+  border-radius:12px; padding:4px;
+  position:relative; z-index:2;
+}
+.top-nav-btn{
+  flex:1; background:transparent; border:none; color:#c6cfe3; border-radius:9px;
+  padding:10px 10px; font-size:13.5px; font-weight:700; cursor:pointer; font-family:inherit;
+}
+.top-nav-btn.active{color:var(--navy); background:#fff;}
+
+/* 게시판 탭 */
+.board-tabs{display:flex; gap:8px; margin-bottom:16px;}
+.board-tab{
+  flex:1; padding:11px; border-radius:11px; border:1.5px solid var(--line);
+  background:#fbfcfe; color:var(--muted); font-weight:700; font-size:13.5px;
+  cursor:pointer; font-family:inherit;
+}
+.board-tab.active{border-color:var(--navy); color:var(--navy); background:#eef1fb;}
+
+.board-toolbar{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  margin-bottom:16px; flex-wrap:wrap;
+}
+#instructorArea{font-size:12.5px;}
+.btn-chip{
+  border:1.5px solid var(--line); background:#fbfcfe; color:var(--navy);
+  padding:8px 14px; border-radius:999px; font-size:12.5px; font-weight:700;
+  cursor:pointer; font-family:inherit;
+}
+.btn-chip.primary{background:var(--navy); color:#fff; border-color:var(--navy);}
+#instructorActiveTag{
+  display:inline-flex; align-items:center; gap:8px;
+  background:#e6f4ea; color:#227a44; padding:7px 12px; border-radius:999px; font-weight:700;
+}
+#instructorActiveTag button{
+  border:none; background:rgba(34,122,68,.15); color:#227a44; border-radius:999px;
+  padding:2px 9px; font-size:11.5px; font-weight:800; cursor:pointer; font-family:inherit;
+}
+
+.board-empty{
+  text-align:center; color:var(--muted); font-size:13.5px; padding:36px 0;
+}
+
+/* 게시글 목록 (공지사항/문의사항) */
+.board-item{
+  padding:14px 4px; border-bottom:1px solid #eef0f5; cursor:pointer;
+}
+.board-item:last-child{border-bottom:none;}
+.board-item:hover .board-item-title{color:var(--navy);}
+.board-item-top{display:flex; align-items:center; gap:6px; margin-bottom:4px;}
+.board-item-title{font-size:14.5px; font-weight:700; color:var(--ink);}
+.board-lock{font-size:12px;}
+.board-badge{
+  font-size:11px; font-weight:800; padding:2px 8px; border-radius:999px;
+  background:#eef1f6; color:var(--muted);
+}
+.board-badge.answered{background:#e6f4ea; color:#227a44;}
+.board-meta{font-size:12px; color:var(--muted);}
+
+/* 연수후기 블로그 피드 */
+.review-entry{padding:20px 4px; border-bottom:1px solid #eef0f5;}
+.review-entry:last-child{border-bottom:none;}
+.review-entry h3{font-size:15.5px; font-weight:800; margin:0 0 4px; color:var(--ink);}
+.review-entry .board-meta{margin-bottom:10px;}
+.review-entry .review-body{font-size:13.5px; line-height:1.7; color:#333; white-space:pre-wrap; word-break:break-word;}
+.delete-link{
+  margin-top:12px; background:none; border:none; padding:0; cursor:pointer; font-family:inherit;
+  font-size:11.5px; color:#a7afc0; font-weight:700; text-decoration:underline;
+}
+.delete-link:hover{color:var(--danger);}
+
+/* 글쓰기 폼 */
+textarea{
+  width:100%; padding:12px 13px; font-size:14.5px; font-family:inherit;
+  border:1.5px solid var(--line); border-radius:11px; background:#fbfcfe; color:var(--ink);
+  resize:vertical;
+}
+textarea:focus{outline:none; border-color:var(--navy); box-shadow:0 0 0 3px rgba(21,36,71,.1); background:#fff;}
+.checkbox-row{
+  display:flex; align-items:flex-start; gap:9px; font-weight:600; font-size:13.5px;
+  color:var(--ink); cursor:pointer;
+}
+.checkbox-row input{margin-top:3px; width:16px; height:16px; flex:none;}
+
+/* 게시글 상세보기 */
+.post-detail-head{margin-bottom:18px; padding-bottom:16px; border-bottom:1px solid var(--line);}
+.post-detail-head h2{font-size:17px; margin:0 0 8px;}
+.post-detail-body{
+  font-size:14px; line-height:1.75; color:#333; white-space:pre-wrap; word-break:break-word;
+  margin-bottom:22px;
+}
+.locked-box{
+  text-align:center; padding:30px 16px; color:var(--muted);
+}
+.locked-box .lock-icon{font-size:32px; margin-bottom:10px;}
+.locked-box input{max-width:220px; margin:14px auto 10px; text-align:center;}
+
+.comments-section{margin-top:8px;}
+.comments-section h4{font-size:13.5px; margin:0 0 12px; color:var(--navy);}
+.comment-item{
+  background:#f6f8fc; border:1px solid var(--line); border-radius:12px;
+  padding:12px 14px; margin-bottom:10px;
+}
+.comment-item .comment-head{
+  display:flex; justify-content:space-between; font-size:12px; color:var(--muted);
+  font-weight:700; margin-bottom:6px;
+}
+.comment-item .comment-body{font-size:13.5px; line-height:1.6; white-space:pre-wrap; word-break:break-word;}
+.no-comment{font-size:13px; color:var(--muted); padding:6px 2px 14px;}
+.reply-form{margin-top:14px;}
+.reply-form textarea{margin-bottom:10px;}
 </style>
 </head>
 <body>
@@ -244,9 +361,14 @@ select{appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns
   <div class="hero-badge">🏐 2026학년도 하반기 특수분야 직무연수</div>
   <h1>슬기로운 배구생활<br>연수 신청서</h1>
   <p>배구를 즐겁게, 안전하게, 제대로 — 기초부터 실전까지</p>
+
+  <div class="top-nav">
+    <button type="button" class="top-nav-btn active" id="navApplyBtn">신청서 작성</button>
+    <button type="button" class="top-nav-btn" id="navBoardBtn">게시판</button>
+  </div>
 </div>
 
-<div class="schedule-wrap">
+<div class="schedule-wrap" id="scheduleWrap">
   <div class="schedule">
     <div class="schedule-item term1">
       <div class="tag">1기</div>
@@ -267,13 +389,13 @@ select{appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns
   </div>
 </div>
 
-<div class="container">
+<div class="container" id="appContainer">
 
   <!-- 신청 마감 안내 -->
   <div class="card" id="closedCard" style="display:none; text-align:center; padding:44px 26px;">
     <div style="font-size:38px; margin-bottom:14px;">🚫</div>
     <h2 style="margin-bottom:10px;" id="closedTitle">지금은 연수 신청 기간이 아닙니다.</h2>
-    <p style="color:var(--muted); font-size:13.5px; line-height:1.6; margin:0 0 24px;">문의사항은 계획서에 기재된 연락처로 연락해 주세요.</p>
+    <p style="color:var(--muted); font-size:13.5px; line-height:1.6; margin:0 0 24px;">문의 사항은 게시판을 이용해주세요.</p>
     <button type="button" class="btn btn-secondary" id="goCheckFromClosed" style="margin-top:0;">연수 신청 결과 확인하기</button>
   </div>
 
@@ -431,7 +553,68 @@ select{appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns
     </form>
   </div>
 
-  <div class="foot-note">문의사항은 계획서에 기재된 연락처로 연락해 주세요.</div>
+  <div class="foot-note">문의 사항은 <a href="#" id="footBoardLink" class="foot-link">게시판</a>을 이용해주세요.</div>
+</div>
+
+<!-- 게시판 -->
+<div class="container" id="boardContainer" style="display:none;">
+
+  <div class="card" id="boardListCard">
+    <div class="board-tabs" id="boardTabs">
+      <button type="button" class="board-tab active" data-cat="공지사항">공지사항</button>
+      <button type="button" class="board-tab" data-cat="문의사항">문의사항</button>
+      <button type="button" class="board-tab" data-cat="연수후기">연수후기</button>
+    </div>
+
+    <div class="board-toolbar">
+      <div id="instructorArea">
+        <button type="button" class="btn-chip" id="instructorModeBtn">🔑 관리자 모드</button>
+        <span id="instructorActiveTag" style="display:none;">관리자 모드 ON <button type="button" id="instructorLogoutBtn">해제</button></span>
+      </div>
+      <button type="button" class="btn-chip primary" id="boardWriteBtn" style="display:none;">문의하기</button>
+    </div>
+
+    <div id="boardListArea"><div class="board-empty">불러오는 중...</div></div>
+  </div>
+
+  <!-- 글쓰기 -->
+  <div class="card" id="boardWriteCard" style="display:none;">
+    <h2 id="boardWriteTitle">문의하기</h2>
+    <form id="boardWriteForm" novalidate>
+      <label for="bw_author">이름</label>
+      <input type="text" id="bw_author" required>
+
+      <label for="bw_title">제목</label>
+      <input type="text" id="bw_title" required>
+
+      <label for="bw_content">내용</label>
+      <textarea id="bw_content" rows="7" required></textarea>
+
+      <div id="bw_privateCheckArea" style="margin-top:14px;">
+        <label class="checkbox-row">
+          <input type="checkbox" id="bw_isPrivate">
+          <span>비밀글로 문의하기 (다른 연수생에게 공개되지 않아요)</span>
+        </label>
+      </div>
+
+      <div id="bw_passwordArea" style="margin-top:12px;">
+        <label for="bw_password" id="bw_passwordLabel">삭제 비밀번호 (선택)</label>
+        <div class="hint" id="bw_passwordHint">설정해 두면 나중에 본인이 이 글을 직접 삭제할 수 있어요.</div>
+        <input type="password" id="bw_password" placeholder="숫자/영문 4자리 이상">
+      </div>
+
+      <div class="error-msg" id="boardWriteError"></div>
+      <button type="submit" class="btn btn-primary" id="boardWriteSubmitBtn">등록하기</button>
+      <button type="button" class="btn btn-secondary" id="boardWriteCancelBtn">취소</button>
+    </form>
+  </div>
+
+  <!-- 상세보기 (공지사항 / 문의사항) -->
+  <div class="card" id="boardDetailCard" style="display:none;">
+    <button type="button" class="btn-chip" id="boardDetailBackBtn" style="margin-bottom:16px;">← 목록으로</button>
+    <div id="boardDetailArea"></div>
+  </div>
+
 </div>
 
 <div class="overlay" id="overlay">
@@ -450,6 +633,22 @@ select{appearance:none; background-image:url('data:image/svg+xml;utf8,<svg xmlns
 const SUPABASE_URL = "https://pqjuvuflinnrpemqcafl.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBxanV2dWZsaW5ucnBlbXFjYWZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0NzAzMjQsImV4cCI6MjA5NDA0NjMyNH0.E4sJv1gM9TbWG-2o90aH8wJXZMLRY_uLQ9fgWARX1Ro";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* ---------- 방문 기록 (페이지 로드 시 1회, 관리자 통계용) ---------- */
+(function logVisit(){
+  const KEY = 'sgbv_visitor_id';
+  let visitorId;
+  try {
+    visitorId = localStorage.getItem(KEY);
+    if(!visitorId){
+      visitorId = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2));
+      localStorage.setItem(KEY, visitorId);
+    }
+  } catch(e){
+    visitorId = String(Date.now()) + Math.random().toString(16).slice(2); // localStorage 불가 환경 대비
+  }
+  sb.rpc('log_site_visit', { p_visitor_id: visitorId }).then(()=>{}, ()=>{});
+})();
 
 const STATUS_STYLE = {
   '신청확인중':        {bg:'#eef1f6', fg:'#495166'},
@@ -1047,6 +1246,434 @@ async function cancelOwnApplication(id, btnEl){
   }
 
   runStatusCheck();
+}
+
+/* =====================================================================
+   게시판 (공지사항 / 문의사항 / 연수후기)
+   ===================================================================== */
+const navApplyBtn = $('navApplyBtn'), navBoardBtn = $('navBoardBtn');
+const scheduleWrap = $('scheduleWrap'), appContainer = $('appContainer'), boardContainer = $('boardContainer');
+const boardListCard = $('boardListCard'), boardWriteCard = $('boardWriteCard'), boardDetailCard = $('boardDetailCard');
+const boardTabs = $('boardTabs'), boardListArea = $('boardListArea');
+const boardWriteBtn = $('boardWriteBtn');
+const instructorModeBtn = $('instructorModeBtn'), instructorActiveTag = $('instructorActiveTag'), instructorLogoutBtn = $('instructorLogoutBtn');
+const boardWriteForm = $('boardWriteForm'), boardWriteTitle = $('boardWriteTitle'), boardWriteError = $('boardWriteError'), boardWriteSubmitBtn = $('boardWriteSubmitBtn'), boardWriteCancelBtn = $('boardWriteCancelBtn');
+const bw_author = $('bw_author'), bw_title = $('bw_title'), bw_content = $('bw_content');
+const bw_privateCheckArea = $('bw_privateCheckArea'), bw_isPrivate = $('bw_isPrivate');
+const bw_passwordArea = $('bw_passwordArea'), bw_passwordLabel = $('bw_passwordLabel'), bw_passwordHint = $('bw_passwordHint'), bw_password = $('bw_password');
+const boardDetailArea = $('boardDetailArea'), boardDetailBackBtn = $('boardDetailBackBtn');
+const footBoardLink = $('footBoardLink');
+
+const boardState = { category: '공지사항', instructorPassword: null };
+
+/* ---------- 내가 쓴 글 소유 토큰 (브라우저에 저장, 비밀번호 없이 본인 글 식별용) ---------- */
+const OWNER_TOKENS_KEY = 'sgbv_board_owner_tokens';
+function getOwnerTokens(){
+  try {
+    return JSON.parse(localStorage.getItem(OWNER_TOKENS_KEY) || '{}');
+  } catch(e){ return {}; }
+}
+function saveOwnerToken(postId, token){
+  try {
+    const map = getOwnerTokens();
+    map[postId] = token;
+    localStorage.setItem(OWNER_TOKENS_KEY, JSON.stringify(map));
+  } catch(e){ /* localStorage 사용 불가 환경이면 조용히 무시 */ }
+}
+function getOwnerToken(postId){
+  return getOwnerTokens()[postId] || null;
+}
+
+function fmtDate(iso){
+  const d = new Date(iso);
+  return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+}
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+/* ---------- 상단 신청서/게시판 모드 전환 ---------- */
+function showApplyMode(){
+  navApplyBtn.classList.add('active');
+  navBoardBtn.classList.remove('active');
+  scheduleWrap.style.display = '';
+  appContainer.style.display = '';
+  boardContainer.style.display = 'none';
+}
+function showBoardMode(){
+  navApplyBtn.classList.remove('active');
+  navBoardBtn.classList.add('active');
+  scheduleWrap.style.display = 'none';
+  appContainer.style.display = 'none';
+  boardContainer.style.display = '';
+  boardWriteCard.style.display = 'none';
+  boardDetailCard.style.display = 'none';
+  boardListCard.style.display = 'block';
+  updateWriteButtonForTab();
+  loadBoardList();
+}
+navApplyBtn.addEventListener('click', showApplyMode);
+navBoardBtn.addEventListener('click', showBoardMode);
+footBoardLink.addEventListener('click', (e)=>{ e.preventDefault(); showBoardMode(); });
+
+/* ---------- 관리자 모드 ---------- */
+instructorModeBtn.addEventListener('click', async ()=>{
+  const pw = prompt('관리자 비밀번호를 입력해 주세요.');
+  if(pw === null) return;
+  const { data, error } = await sb.rpc('verify_instructor_password', { p_password: pw });
+  if(error || !data){
+    alert('비밀번호가 올바르지 않습니다.');
+    return;
+  }
+  boardState.instructorPassword = pw;
+  instructorModeBtn.style.display = 'none';
+  instructorActiveTag.style.display = 'inline-flex';
+  updateWriteButtonForTab();
+});
+instructorLogoutBtn.addEventListener('click', ()=>{
+  boardState.instructorPassword = null;
+  instructorModeBtn.style.display = 'inline-block';
+  instructorActiveTag.style.display = 'none';
+  updateWriteButtonForTab();
+});
+
+/* ---------- 탭 전환 ---------- */
+boardTabs.querySelectorAll('.board-tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    boardTabs.querySelectorAll('.board-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    boardState.category = tab.dataset.cat;
+    updateWriteButtonForTab();
+    loadBoardList();
+  });
+});
+
+function updateWriteButtonForTab(){
+  if(boardState.category === '공지사항'){
+    boardWriteBtn.style.display = boardState.instructorPassword ? 'inline-block' : 'none';
+    boardWriteBtn.textContent = '공지 작성';
+  } else if(boardState.category === '문의사항'){
+    boardWriteBtn.style.display = 'inline-block';
+    boardWriteBtn.textContent = '문의하기';
+  } else {
+    boardWriteBtn.style.display = 'inline-block';
+    boardWriteBtn.textContent = '후기 작성';
+  }
+}
+
+/* ---------- 게시글 삭제 (공용) ---------- */
+async function attemptDeletePost(id, onSuccess){
+  if(!confirm('이 글을 삭제하시겠습니까? 삭제 후에는 되돌릴 수 없습니다.')) return;
+
+  const params = { p_id: id };
+  if(boardState.instructorPassword){
+    params.p_admin_password = boardState.instructorPassword;
+  } else {
+    const token = getOwnerToken(id);
+    if(token){
+      params.p_owner_token = token;
+    } else {
+      const pw = prompt('이 글을 삭제하려면 작성 시 설정한 비밀번호를 입력해 주세요.\n(비밀번호를 설정하지 않은 글은 작성자 본인이라도 이 브라우저가 아니면 삭제할 수 없습니다.)');
+      if(pw === null) return;
+      params.p_password = pw;
+    }
+  }
+
+  const { data, error } = await sb.rpc('delete_board_post', params);
+  if(error || !data){
+    console.error(error);
+    alert('삭제할 수 없습니다. 비밀번호가 올바르지 않거나 권한이 없습니다.');
+    return;
+  }
+  onSuccess && onSuccess();
+}
+function canShowQuickDelete(postId){
+  return !!(boardState.instructorPassword || getOwnerToken(postId));
+}
+
+/* ---------- 목록 불러오기 ---------- */
+async function loadBoardList(){
+  boardListArea.innerHTML = '<div class="board-empty">불러오는 중...</div>';
+  const { data, error } = await sb.rpc('list_board_posts', { p_category: boardState.category });
+  if(error){
+    console.error(error);
+    boardListArea.innerHTML = '<div class="board-empty">목록을 불러오지 못했습니다. 새로고침해 주세요.</div>';
+    return;
+  }
+  if(!data || data.length === 0){
+    boardListArea.innerHTML = `<div class="board-empty">${boardState.category === '연수후기' ? '아직 작성된 후기가 없습니다.' : '아직 등록된 글이 없습니다.'}</div>`;
+    return;
+  }
+
+  if(boardState.category === '연수후기'){
+    boardListArea.innerHTML = data.map(row => `
+      <div class="review-entry">
+        <h3>${escapeHtml(row.title)}</h3>
+        <div class="board-meta">${escapeHtml(row.author_name)} · ${fmtDate(row.created_at)}</div>
+        <div class="review-body">${escapeHtml(row.content)}</div>
+        <button type="button" class="delete-link" data-id="${row.id}">삭제${canShowQuickDelete(row.id) ? '' : ' (비밀번호 필요)'}</button>
+      </div>
+    `).join('');
+    boardListArea.querySelectorAll('.delete-link').forEach(btn=>{
+      btn.addEventListener('click', ()=> attemptDeletePost(Number(btn.dataset.id), loadBoardList));
+    });
+    return;
+  }
+
+  boardListArea.innerHTML = data.map(row => {
+    const lock = (row.category === '문의사항' && row.is_private) ? '<span class="board-lock">🔒</span>' : '';
+    const badge = row.category === '문의사항'
+      ? (row.comment_count > 0 ? '<span class="board-badge answered">답변완료</span>' : '<span class="board-badge">답변대기</span>')
+      : '';
+    return `
+      <div class="board-item" data-id="${row.id}">
+        <div class="board-item-top">${lock}<span class="board-item-title">${escapeHtml(row.title)}</span>${badge}</div>
+        <div class="board-meta">${escapeHtml(row.author_name)} · ${fmtDate(row.created_at)}</div>
+      </div>
+    `;
+  }).join('');
+
+  boardListArea.querySelectorAll('.board-item').forEach(el=>{
+    el.addEventListener('click', ()=> openPostDetail(Number(el.dataset.id)));
+  });
+}
+
+/* ---------- 글쓰기 ---------- */
+function resetPasswordAreaLabel(){
+  bw_passwordLabel.textContent = '삭제 비밀번호 (선택)';
+  bw_passwordHint.textContent = '설정해 두면 나중에 본인이 이 글을 직접 삭제할 수 있어요.';
+  bw_password.placeholder = '숫자/영문 4자리 이상 (선택)';
+}
+
+boardWriteBtn.addEventListener('click', ()=>{
+  boardWriteError.style.display = 'none';
+  boardWriteForm.reset();
+  resetPasswordAreaLabel();
+
+  if(boardState.category === '공지사항'){
+    boardWriteTitle.textContent = '공지 작성';
+    bw_privateCheckArea.style.display = 'none';
+    bw_passwordArea.style.display = 'none';
+    bw_author.value = '관리자';
+  } else if(boardState.category === '문의사항'){
+    boardWriteTitle.textContent = '문의하기';
+    bw_privateCheckArea.style.display = 'block';
+    bw_passwordArea.style.display = 'block';
+  } else {
+    boardWriteTitle.textContent = '후기 작성';
+    bw_privateCheckArea.style.display = 'none';
+    bw_passwordArea.style.display = 'block';
+  }
+
+  boardListCard.style.display = 'none';
+  boardDetailCard.style.display = 'none';
+  boardWriteCard.style.display = 'block';
+});
+boardWriteCancelBtn.addEventListener('click', ()=>{
+  boardWriteCard.style.display = 'none';
+  boardListCard.style.display = 'block';
+});
+bw_isPrivate.addEventListener('change', ()=>{
+  if(bw_isPrivate.checked){
+    bw_passwordLabel.textContent = '비밀글 비밀번호 (필수)';
+    bw_passwordHint.textContent = '글을 다시 확인/삭제할 때 필요해요. 잊지 않게 기억해 주세요.';
+    bw_password.placeholder = '숫자/영문 4자리 이상';
+  } else {
+    resetPasswordAreaLabel();
+  }
+});
+
+boardWriteForm.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  boardWriteError.style.display = 'none';
+
+  const author = bw_author.value.trim();
+  const title = bw_title.value.trim();
+  const content = bw_content.value.trim();
+
+  if(!author || !title || !content){
+    boardWriteError.textContent = '이름, 제목, 내용을 모두 입력해 주세요.';
+    boardWriteError.style.display = 'block';
+    return;
+  }
+
+  boardWriteSubmitBtn.disabled = true;
+  boardWriteSubmitBtn.textContent = '등록 중입니다...';
+
+  let rpcError = null;
+
+  if(boardState.category === '공지사항'){
+    if(!boardState.instructorPassword){
+      boardWriteError.textContent = '관리자 모드에서만 공지를 작성할 수 있습니다.';
+      boardWriteError.style.display = 'block';
+      boardWriteSubmitBtn.disabled = false;
+      boardWriteSubmitBtn.textContent = '등록하기';
+      return;
+    }
+    const { error } = await sb.rpc('create_notice', {
+      p_instructor_password: boardState.instructorPassword,
+      p_title: title, p_content: content, p_author_name: author,
+    });
+    rpcError = error;
+  } else {
+    const isPrivate = boardState.category === '문의사항' && bw_isPrivate.checked;
+    const pwValue = bw_password.value.trim();
+    if(isPrivate && !pwValue){
+      boardWriteError.textContent = '비밀글은 비밀번호를 입력해야 합니다.';
+      boardWriteError.style.display = 'block';
+      boardWriteSubmitBtn.disabled = false;
+      boardWriteSubmitBtn.textContent = '등록하기';
+      return;
+    }
+    const { data, error } = await sb.rpc('create_board_post', {
+      p_category: boardState.category, p_title: title, p_content: content, p_author_name: author,
+      p_is_private: isPrivate, p_password: pwValue ? pwValue : null,
+    });
+    rpcError = error;
+    if(!error && data && data[0]){
+      saveOwnerToken(data[0].id, data[0].owner_token);
+    }
+  }
+
+  boardWriteSubmitBtn.disabled = false;
+  boardWriteSubmitBtn.textContent = '등록하기';
+
+  if(rpcError){
+    console.error(rpcError);
+    boardWriteError.textContent = '등록 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
+    boardWriteError.style.display = 'block';
+    return;
+  }
+
+  boardWriteCard.style.display = 'none';
+  boardListCard.style.display = 'block';
+  loadBoardList();
+});
+
+/* ---------- 상세보기 ---------- */
+boardDetailBackBtn.addEventListener('click', ()=>{
+  boardDetailCard.style.display = 'none';
+  boardListCard.style.display = 'block';
+});
+
+async function openPostDetail(id){
+  boardListCard.style.display = 'none';
+  boardWriteCard.style.display = 'none';
+  boardDetailCard.style.display = 'block';
+  boardDetailArea.innerHTML = '<div class="board-empty">불러오는 중...</div>';
+
+  const pwForFetch = boardState.instructorPassword || null;
+  const { data, error } = await sb.rpc('get_post_detail', { p_id: id, p_password: pwForFetch });
+  if(error || !data || data.length === 0){
+    console.error(error);
+    boardDetailArea.innerHTML = '<div class="board-empty">글을 불러오지 못했습니다.</div>';
+    return;
+  }
+  renderPostDetail(data[0], pwForFetch);
+}
+
+async function renderPostDetail(post, currentPassword){
+  if(post.category === '문의사항' && post.is_private && !post.authorized){
+    boardDetailArea.innerHTML = `
+      <div class="locked-box">
+        <div class="lock-icon">🔒</div>
+        <div><b>${escapeHtml(post.title)}</b></div>
+        <div style="margin-top:4px;">비밀글입니다. 작성 시 설정한 비밀번호를 입력해 주세요.</div>
+        <input type="password" id="unlockPw" placeholder="비밀글 비밀번호">
+        <div>
+          <button type="button" class="btn btn-primary" id="unlockBtn" style="width:auto; padding:10px 22px; margin-top:6px;">확인</button>
+        </div>
+        <div class="error-msg" id="unlockError" style="display:none; text-align:left;"></div>
+      </div>
+    `;
+    $('unlockBtn').addEventListener('click', async ()=>{
+      const pw = $('unlockPw').value.trim();
+      const unlockError = $('unlockError');
+      unlockError.style.display = 'none';
+      if(!pw){ return; }
+      const { data, error } = await sb.rpc('get_post_detail', { p_id: post.id, p_password: pw });
+      if(error || !data || data.length === 0 || !data[0].authorized){
+        unlockError.textContent = '비밀번호가 올바르지 않습니다.';
+        unlockError.style.display = 'block';
+        return;
+      }
+      renderPostDetail(data[0], pw);
+    });
+    return;
+  }
+
+  let commentsHtml = '';
+  if(post.category === '문의사항'){
+    const { data: comments, error: cErr } = await sb.rpc('get_post_comments', { p_id: post.id, p_password: currentPassword });
+    const list = (!cErr && comments) ? comments : [];
+    commentsHtml = `
+      <div class="comments-section">
+        <h4>관리자 답변 ${list.length > 0 ? `(${list.length})` : ''}</h4>
+        ${list.length === 0 ? '<div class="no-comment">아직 답변이 등록되지 않았습니다.</div>' : ''}
+        ${list.map(c => `
+          <div class="comment-item">
+            <div class="comment-head"><span>${escapeHtml(c.author_name)}</span><span>${fmtDate(c.created_at)}</span></div>
+            <div class="comment-body">${escapeHtml(c.content)}</div>
+          </div>
+        `).join('')}
+        ${boardState.instructorPassword ? `
+          <div class="reply-form">
+            <textarea id="replyContent" rows="3" placeholder="답변을 입력해 주세요"></textarea>
+            <button type="button" class="btn btn-primary" id="replySubmitBtn" style="margin-top:0;">답변 등록</button>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  const lockNote = (post.category === '문의사항' && post.is_private) ? '<span class="board-lock">🔒 비밀글</span> ' : '';
+  const showDelete = post.category !== '공지사항' || boardState.instructorPassword;
+  const deleteBtnHtml = showDelete
+    ? `<button type="button" class="delete-link" id="postDeleteBtn">삭제${canShowQuickDelete(post.id) ? '' : ' (비밀번호 필요)'}</button>`
+    : '';
+
+  boardDetailArea.innerHTML = `
+    <div class="post-detail-head">
+      <h2>${lockNote}${escapeHtml(post.title)}</h2>
+      <div class="board-meta">${escapeHtml(post.author_name)} · ${fmtDate(post.created_at)}</div>
+    </div>
+    <div class="post-detail-body">${escapeHtml(post.content)}</div>
+    ${deleteBtnHtml}
+    ${commentsHtml}
+  `;
+
+  const deleteBtn = $('postDeleteBtn');
+  if(deleteBtn){
+    deleteBtn.addEventListener('click', ()=> attemptDeletePost(post.id, ()=>{
+      boardDetailCard.style.display = 'none';
+      boardListCard.style.display = 'block';
+      loadBoardList();
+    }));
+  }
+
+  const replyBtn = $('replySubmitBtn');
+  if(replyBtn){
+    replyBtn.addEventListener('click', async ()=>{
+      const content = $('replyContent').value.trim();
+      if(!content) return;
+      replyBtn.disabled = true;
+      replyBtn.textContent = '등록 중...';
+      const { error } = await sb.rpc('add_instructor_comment', {
+        p_post_id: post.id,
+        p_instructor_password: boardState.instructorPassword,
+        p_author_name: '관리자',
+        p_content: content,
+      });
+      replyBtn.disabled = false;
+      replyBtn.textContent = '답변 등록';
+      if(error){
+        console.error(error);
+        alert('답변 등록 중 오류가 발생했습니다.');
+        return;
+      }
+      renderPostDetail(post, currentPassword);
+    });
+  }
 }
 </script>
 </body>
