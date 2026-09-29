@@ -571,7 +571,7 @@ textarea:focus{outline:none; border-color:var(--navy); box-shadow:0 0 0 3px rgba
         <button type="button" class="btn-chip" id="instructorModeBtn">🔑 관리자 모드</button>
         <span id="instructorActiveTag" style="display:none;">관리자 모드 ON <button type="button" id="instructorLogoutBtn">해제</button></span>
       </div>
-      <button type="button" class="btn-chip primary" id="boardWriteBtn">문의하기</button>
+      <button type="button" class="btn-chip primary" id="boardWriteBtn" style="display:none;">문의하기</button>
     </div>
 
     <div id="boardListArea"><div class="board-empty">불러오는 중...</div></div>
@@ -1293,6 +1293,7 @@ function showBoardMode(){
   boardWriteCard.style.display = 'none';
   boardDetailCard.style.display = 'none';
   boardListCard.style.display = 'block';
+  updateWriteButtonForTab();
   loadBoardList();
 }
 navApplyBtn.addEventListener('click', showApplyMode);
