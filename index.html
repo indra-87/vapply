@@ -1029,7 +1029,7 @@ async function runStatusCheck(){
       : '';
     return `
       <div class="result-entry">
-        <span class="status-pill" style="background:${st.bg}; color:${st.fg};">${row.status}</span>
+        <span class="status-pill" style="background:${st.bg}; color:${st.fg};">${row.status}${(row.status === '대기명단 등록' && row.waitlist_number) ? ` · 대기 ${row.waitlist_number}번` : ''}</span>
         <div class="result-row"><span class="k">신청일</span><span class="v">${createdStr}</span></div>
         <div class="result-row"><span class="k">지역명</span><span class="v">${row.region}</span></div>
         <div class="result-row"><span class="k">연수 기수</span><span class="v">${row.course}</span></div>
