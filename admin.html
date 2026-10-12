@@ -526,7 +526,22 @@ function getFiltered(){
   });
 }
 
+function computeWaitlistNumbers(){
+  const map = {};
+  const groups = {};
+  allRows.filter(r => r.status === '대기명단 등록').forEach(r => {
+    const key = String(r.course).slice(0,2);
+    (groups[key] = groups[key] || []).push(r);
+  });
+  Object.values(groups).forEach(list => {
+    list.sort((x,y) => new Date(x.created_at) - new Date(y.created_at) || x.id - y.id);
+    list.forEach((r,i) => { map[r.id] = i + 1; });
+  });
+  return map;
+}
+
 function renderTable(){
+  const waitlistNo = computeWaitlistNumbers();
   const rows = getFiltered();
   // 필터링돼서 화면에서 사라진 항목의 선택은 해제
   const visibleIds = new Set(rows.map(r=>r.id));
@@ -551,6 +566,7 @@ function renderTable(){
           <select class="status-select" style="background:${st.bg}; color:${st.fg};" onchange="updateStatus(${r.id}, this.value)">
             ${statusOptions}
           </select>
+          ${waitlistNo[r.id] ? `<div style="font-size:11.5px; font-weight:800; color:#6b3aa0; margin-top:4px;">대기 ${waitlistNo[r.id]}번</div>` : ''}
         </td>
         <td>${escapeHtml(r.region)}</td>
         <td>${escapeHtml(r.name)}</td>
