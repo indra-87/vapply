@@ -1037,7 +1037,8 @@ async function runStatusCheck(){
         <div class="result-row"><span class="k">성별</span><span class="v">${row.gender || '-'}</span></div>
         <div class="result-row"><span class="k">NEIS 개인번호</span><span class="v">${row.neis_id || '-'}</span></div>
         <div class="result-row"><span class="k">생년월일</span><span class="v">${birthStr}</span></div>
-        ${statusNoteHtml(row.status, st)}
+        ${(row.status === '대기명단 등록' && row.waitlist_number) ? `<div class="result-row"><span class="k">대기번호</span><span class="v" style="color:${st.fg};">대기 ${row.waitlist_number}번</span></div>` : ''}
+        ${statusNoteHtml(row.status, st, row.course, row.waitlist_number)}
         ${actionBtns}
       </div>
     `;
@@ -1052,7 +1053,27 @@ async function runStatusCheck(){
   });
 }
 
-function statusNoteHtml(status, st){
+const KAKAO_OPENCHAT_LINKS = {
+  '1기': 'https://open.kakao.com/o/g9y41URi',
+  '2기': 'https://open.kakao.com/o/gfTS5URi',
+};
+
+function statusNoteHtml(status, st, course, waitlistNumber){
+  if(status === '연수비 입금 완료'){
+    const prefix = (course || '').startsWith('1기') ? '1기' : (course || '').startsWith('2기') ? '2기' : null;
+    const link = prefix ? KAKAO_OPENCHAT_LINKS[prefix] : null;
+    return `
+      <div class="status-note" style="background:${st.bg}; border-color:${st.fg}33;">
+        <div class="note-title" style="color:${st.fg};">💬 카카오톡 오픈채팅 입장 안내</div>
+        <div class="note-body">
+          아래 링크를 통해 카카오톡 오픈채팅에 입장해주시기 바랍니다.<br>
+          <b>오픈채팅에 입장하시면 연수 확정됩니다.</b><br>
+          ${link
+            ? `${prefix}: <a href="${link}" target="_blank" rel="noopener noreferrer" style="color:${st.fg}; font-weight:700; word-break:break-all;">${link}</a>`
+            : '연수 기수 정보를 확인할 수 없습니다. 게시판으로 문의해 주세요.'}
+        </div>
+      </div>`;
+  }
   if(status === '연수비 입금 대기'){
     return `
       <div class="status-note" style="background:${st.bg}; border-color:${st.fg}33;">
@@ -1077,7 +1098,7 @@ function statusNoteHtml(status, st){
   if(status === '대기명단 등록'){
     return `
       <div class="status-note" style="background:${st.bg}; border-color:${st.fg}33;">
-        <div class="note-title" style="color:${st.fg};">⏳ 대기명단 안내</div>
+        <div class="note-title" style="color:${st.fg};">⏳ 대기명단 안내${waitlistNumber ? ` · 대기 ${waitlistNumber}번` : ''}</div>
         <div class="note-body">
           현재 연수 신청 정원이 마감되어 대기 명단에 등록된 상태입니다.<br>
           연수 신청 취소자가 나올 경우 순서대로 연락을 드립니다.
